@@ -70,7 +70,7 @@ export function getWallet() {
 export async function getMyWalletFromApi() {
   const token = localStorage.getItem("token");
 
-  const response = await fetch("http://localhost:4000/api/wallet/me", {
+  const response = await fetch(`${API_URL}/wallet/me`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -90,7 +90,7 @@ export async function getMyWalletFromApi() {
 export async function scanMyDeposits() {
   const token = localStorage.getItem("token");
 
-  const response = await fetch("http://localhost:4000/api/deposits/scan-me", {
+  const response = await fetch(`${API_URL}/deposits/scan-me`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -110,7 +110,7 @@ export async function scanMyDeposits() {
 export async function getWithdrawInfo() {
   const token = localStorage.getItem("token");
 
-  const response = await fetch("http://localhost:4000/api/withdraw/me", {
+  const response = await fetch(`${API_URL}/withdraw/me`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -130,7 +130,7 @@ export async function getWithdrawInfo() {
 export async function createWithdrawRequest(payload) {
   const token = localStorage.getItem("token");
 
-  const response = await fetch("http://localhost:4000/api/withdraw/request", {
+  const response = await fetch(`${API_URL}/withdraw/request`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -151,7 +151,7 @@ export async function createWithdrawRequest(payload) {
 export async function getMyTransactions() {
   const token = localStorage.getItem("token");
 
-  const response = await fetch("http://localhost:4000/api/withdraw/transactions", {
+  const response = await fetch(`${API_URL}/withdraw/transactions`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -173,7 +173,7 @@ export async function getMyTransactions() {
 export async function getAdminPendingWithdrawals() {
   const token = localStorage.getItem("token");
 
-  const response = await fetch("http://localhost:4000/api/admin/withdrawals/pending", {
+  const response = await fetch(`${API_URL}/admin/withdrawals/pending`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -194,7 +194,7 @@ export async function approveAdminWithdrawal(withdrawalId) {
   const token = localStorage.getItem("token");
 
   const response = await fetch(
-    `http://localhost:4000/api/admin/withdrawals/${withdrawalId}/approve`,
+    `${API_URL}/admin/withdrawals/${withdrawalId}/approve`,
     {
       method: "POST",
       headers: {
@@ -217,7 +217,7 @@ export async function approveAdminWithdrawal(withdrawalId) {
 export async function getPromotionDashboard() {
   const token = localStorage.getItem("token");
 
-  const response = await fetch("http://localhost:4000/api/referrals/dashboard", {
+  const response = await fetch(`${API_URL}/referrals/dashboard`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -238,7 +238,7 @@ export async function getReferralMembers(level) {
   const token = localStorage.getItem("token");
 
   const response = await fetch(
-    `http://localhost:4000/api/referrals/members/${level}`,
+    `${API_URL}/referrals/members/${level}`,
     {
       method: "GET",
       headers: {
