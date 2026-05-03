@@ -1,6 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiChevronRight, FiCopy, FiMessageCircle, FiSend } from "react-icons/fi";
+import {
+  FiChevronRight,
+  FiCopy,
+  FiCreditCard,
+  FiDollarSign,
+  FiGift,
+  FiMessageCircle,
+  FiSend,
+  FiUser,
+  FiUsers,
+} from "react-icons/fi";
 import {
   getUser,
   getWithdrawInfo,
@@ -11,6 +21,7 @@ import {
 
 const TELEGRAM_CHANNEL_URL = "https://t.me/baolongtv_oficial";
 const TELEGRAM_SUPPORT_URL = "https://t.me/soporte_baolongtv";
+
 function toNumber(value) {
   const numberValue = Number(value ?? 0);
   return Number.isFinite(numberValue) ? numberValue : 0;
@@ -18,11 +29,6 @@ function toNumber(value) {
 
 function formatUsdt(value) {
   return toNumber(value).toFixed(2);
-}
-
-function getAvatarText(email) {
-  if (!email) return "BF";
-  return email.slice(0, 2).toUpperCase();
 }
 
 async function copyText(text) {
@@ -54,7 +60,7 @@ export default function Profile() {
 
   const showToast = useCallback((message) => {
     setToast(message);
-    setTimeout(() => setToast(""), 3000);
+    setTimeout(() => setToast(""), 2600);
   }, []);
 
   const loadProfile = useCallback(async () => {
@@ -153,7 +159,7 @@ export default function Profile() {
   const handleCopyReferral = async () => {
     try {
       await copyText(profile.referralLink);
-      showToast("Enlace de referido copiado.");
+      showToast("Enlace copiado.");
     } catch (error) {
       showToast("No se pudo copiar el enlace.");
     }
@@ -169,84 +175,99 @@ export default function Profile() {
   };
 
   return (
-    <div className="page">
+    <div className="page profile-page">
       {toast && (
         <div className="success-toast">
           <strong>{toast}</strong>
         </div>
       )}
 
-      <div className="profile-hero">
-        <div className="profile-avatar">{getAvatarText(profile.email)}</div>
+      <div className="profile-hero profile-hero-horizontal">
+        <div className="profile-avatar profile-avatar-large">
+          <FiUser />
+        </div>
 
-        <div className="profile-info">
+        <div className="profile-info profile-info-right">
+          <span className="eyebrow">Mi cuenta</span>
           <h2>{profile.email}</h2>
-          <span>código de invitación: {profile.referralCode}</span>
+          <p>código de invitación: {profile.referralCode}</p>
         </div>
       </div>
 
       {loading && <div className="panel">Cargando datos del perfil...</div>}
 
-      <div className="wallet-panel">
-        <div className="wallet-grid">
+      <section className="wallet-panel profile-section-card">
+        <div className="profile-section-title">
+          <span className="icon-badge sm tone-blue">
+            <FiCreditCard />
+          </span>
+          <div>
+            <h3>Balance principal</h3>
+            <p>Saldo retirable e inversión</p>
+          </div>
+        </div>
+
+        <div className="profile-metric-card tone-card-success profile-today-earnings profile-today-inside-balance">
+          <span>Ganancias hoy</span>
+          <strong>{formatUsdt(profile.todayTotalIncome)}</strong>
+        </div>
+
+        <div className="wallet-grid profile-balance-grid profile-balance-grid-two">
           <div
+            className="profile-metric-card tone-card-mint no-metric-icon"
             onClick={() => navigate("/withdraw")}
             style={{ cursor: "pointer" }}
           >
-            <span>Disponible para retirar (USDT)</span>
+            <span>Retirable</span>
             <strong>{formatUsdt(profile.withdrawableBalance)} ›</strong>
           </div>
 
           <div
+            className="profile-metric-card tone-card-blue no-metric-icon"
             onClick={() => navigate("/recharge")}
             style={{ cursor: "pointer" }}
           >
-            <span>Saldo de recarga / VIP (USDT)</span>
+            <span>Inversión</span>
             <strong>{formatUsdt(profile.rechargeBalance)} ›</strong>
           </div>
-
-          <div>
-            <span>Ganancias de hoy totales (USDT)</span>
-            <strong>{formatUsdt(profile.todayTotalIncome)}</strong>
-          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="panel summary-panel">
-        <div className="summary-top">
+      <section className="panel summary-panel profile-section-card">
+        <div className="profile-section-title">
+          <span className="icon-badge sm tone-success">
+            <FiGift />
+          </span>
           <div>
-            <b>{formatUsdt(profile.taskTodayIncome)}</b>
-            <span>Ganancias de tareas hoy</span>
-          </div>
-
-          <div>
-            <b>{formatUsdt(profile.referralTodayIncome)}</b>
-            <span>Ganancias por referidos hoy</span>
+            <h3>Rendimiento de referidos</h3>
+            <p>Resumen de equipo</p>
           </div>
         </div>
 
-        <div className="divider" />
-
-        <div className="summary-bottom">
+        <div className="summary-bottom profile-team-grid">
           <div
+            className="profile-metric-card tone-card-blue"
             onClick={() => navigate("/promotion")}
             style={{ cursor: "pointer" }}
           >
+            <span className="metric-icon"><FiUsers /></span>
             <b>{profile.totalMembers}</b>
-            <span>Tamaño total del equipo</span>
+            <span>Equipo</span>
           </div>
 
-          <div>
+          <div className="profile-metric-card tone-card-lavender">
+            <span className="metric-icon"><FiCreditCard /></span>
             <b>{formatUsdt(profile.totalTeamRecharge)}</b>
-            <span>Recarga total del equipo</span>
+            <span>Recarga equipo</span>
           </div>
 
-          <div>
+          <div className="profile-metric-card tone-card-mint">
+            <span className="metric-icon"><FiDollarSign /></span>
             <b>{formatUsdt(profile.totalReferralIncome)}</b>
-            <span>Ingresos por referidos</span>
+            <span>Ingresos ref.</span>
           </div>
         </div>
-      </div>
+      </section>
 
       <div className="menu-panel">
         <div
@@ -254,7 +275,7 @@ export default function Profile() {
           onClick={handleCopyReferral}
           style={{ cursor: "pointer" }}
         >
-          <span>Copiar enlace de referido</span>
+          <span>Copiar referido</span>
           <FiCopy />
         </div>
 
@@ -263,7 +284,7 @@ export default function Profile() {
           onClick={() => openTelegram(TELEGRAM_CHANNEL_URL)}
           style={{ cursor: "pointer" }}
         >
-          <span>Canal oficial de Telegram</span>
+          <span>Canal oficial</span>
 
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <FiSend />
@@ -276,7 +297,7 @@ export default function Profile() {
           onClick={() => openTelegram(TELEGRAM_SUPPORT_URL)}
           style={{ cursor: "pointer" }}
         >
-          <span>Servicio al cliente por Telegram</span>
+          <span>Soporte Telegram</span>
 
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <FiMessageCircle />

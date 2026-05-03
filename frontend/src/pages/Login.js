@@ -1,120 +1,117 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiGlobe, FiRefreshCcw, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiHome, FiMail, FiLock } from "react-icons/fi";
 import { loginUser, saveSession } from "../services/authService";
 
 export default function Login() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    const isValidEmail = (value) => {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-    };
+  const isValidEmail = (value) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  };
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setError("");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
 
-        if (!email.trim()) {
-            setError("Ingresa tu correo electrónico.");
-            return;
-        }
+    if (!email.trim()) {
+      setError("Ingresa tu correo electrónico.");
+      return;
+    }
 
-        if (!isValidEmail(email)) {
-            setError("Ingresa un correo electrónico válido.");
-            return;
-        }
+    if (!isValidEmail(email)) {
+      setError("Ingresa un correo electrónico válido.");
+      return;
+    }
 
-        if (!password.trim()) {
-            setError("Ingresa tu contraseña.");
-            return;
-        }
+    if (!password.trim()) {
+      setError("Ingresa tu contraseña.");
+      return;
+    }
 
-        setLoading(true);
+    setLoading(true);
 
-        try {
-            const data = await loginUser({
-                email,
-                password,
-            });
+    try {
+      const data = await loginUser({
+        email,
+        password,
+      });
 
-            saveSession(data);
-            navigate("/home");
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+      saveSession(data);
+      navigate("/home");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <div className="auth-page">
-            <div className="auth-top-icons">
-                <FiRefreshCcw />
-                <FiGlobe />
-            </div>
+  return (
+    <div className="auth-page">
+      <button className="auth-home-btn" type="button" onClick={() => navigate("/home")}>
+        <FiHome />
+      </button>
 
-            <div className="auth-logo-block">
-                <div className="auth-logo">BF</div>
-                <h1>BaolongTV</h1>
-            </div>
+      <div className="auth-logo-block">
+        <div className="auth-logo">BF</div>
+        <h1>Bienvenido de vuelta</h1>
+        <p>Accede a tu panel para gestionar tu cuenta.</p>
+      </div>
 
-            <div className="auth-card">
-                <div className="auth-title-box">
-                    <span className="auth-title-badge">INICIAR SESIÓN</span>
-                </div>
+      <div className="auth-card">
+        <form onSubmit={handleLogin} className="auth-form">
+          <label className="auth-field-label">Correo electrónico</label>
+          <div className="auth-input-wrap">
+            <FiMail />
+            <input
+              className="auth-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tucorreo@ejemplo.com"
+              autoComplete="email"
+            />
+          </div>
 
-                <form onSubmit={handleLogin} className="auth-form">
-                    <input
-                        className="auth-input"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Correo electrónico"
-                        autoComplete="email"
-                    />
+          <label className="auth-field-label">Contraseña</label>
+          <div className="password-field auth-input-wrap">
+            <FiLock />
+            <input
+              className="auth-input"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              autoComplete="current-password"
+            />
 
-                    <div className="password-field">
-                        <input
-                            className="auth-input"
-                            type={showPassword ? "text" : "password"}
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Contraseña de inicio de sesión"
-                            autoComplete="current-password"
-                        />
+            <button
+              type="button"
+              className="eye-btn"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <FiEyeOff /> : <FiEye />}
+            </button>
+          </div>
 
-                        <button
-                            type="button"
-                            className="eye-btn"
-                            onClick={() => setShowPassword(!showPassword)}
-                        >
-                            {showPassword ? <FiEyeOff /> : <FiEye />}
-                        </button>
-                    </div>
+          {error && <div className="auth-error">{error}</div>}
 
-                    <label className="remember-row">
-                        <input type="checkbox" defaultChecked />
-                        <span>Acuérdate de mí</span>
-                    </label>
+          <button className="primary-btn" type="submit" disabled={loading}>
+            {loading ? "Ingresando..." : "Acceder al panel"}
+          </button>
+        </form>
 
-                    {error && <div className="auth-error">{error}</div>}
-
-                    <button className="primary-btn" type="submit" disabled={loading}>
-                        {loading ? "Ingresando..." : "Acceso"}
-                    </button>
-                </form>
-
-                <p className="auth-footer-link">
-                    ¿Sin cuenta? <Link to="/register">Registro</Link>
-                </p>
-            </div>
-        </div>
-    );
+        <p className="auth-footer-link">
+          ¿Aún no eres miembro? <Link to="/register">Crear cuenta</Link>
+        </p>
+      </div>
+    </div>
+  );
 }

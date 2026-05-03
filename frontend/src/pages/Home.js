@@ -1,95 +1,102 @@
-import React, { useState } from "react";
-import { FiGlobe, FiDownloadCloud, FiVolume2, FiRefreshCw, FiLogOut, FiAward, FiBookOpen } from "react-icons/fi";
-import PopupInfo from "../components/PopupInfo";
-import VideoCard from "../components/VideoCard";
+import React from "react";
+import {
+  FiDownloadCloud,
+  FiGlobe,
+  FiRefreshCw,
+  FiLogOut,
+  FiBell,
+  FiShield,
+  FiTrendingUp,
+} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
+const platformUpdates = [
+  {
+    icon: <FiShield />,
+    title: "Paquetes VIP activos",
+    text: "Gestiona tus niveles VIP y revisa tus ganancias diarias desde el centro de miembros.",
+    tone: "tone-lavender",
+  },
+  {
+    icon: <FiTrendingUp />,
+    title: "Retiros y recargas",
+    text: "Mantén tu saldo organizado usando la cartera, historial y panel de recarga.",
+    tone: "tone-mint",
+  },
+  {
+    icon: <FiBell />,
+    title: "Recordatorios",
+    text: "Completa tus tareas dentro del periodo diario para mantener el flujo de ingresos.",
+    tone: "tone-blue",
+  },
+];
+
 export default function Home() {
-    const [showPopup, setShowPopup] = useState(true);
-    const navigate = useNavigate();
-    const demoImg = "https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=1200&auto=format&fit=crop";
+  const navigate = useNavigate();
+  const demoImg =
+    "https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=1200&auto=format&fit=crop";
 
-    return (
-        <div className="page page-home">
-            <header className="top-header">
-                <div className="brand">
-                    <div className="brand-logo">BF</div>
-                    <div className="brand-text">BaolongTV</div>
-                </div>
-
-                <div className="top-actions">
-                    <button className="app-mini-btn">
-                        <FiDownloadCloud />
-                        <span>App</span>
-                    </button>
-                    <FiGlobe className="header-icon" />
-                </div>
-            </header>
-
-            <div className="hero-banner">
-                <img src={demoImg} alt="banner" />
-            </div>
-
-            <div className="search-pill">
-                <FiVolume2 />
-                <span>baolongtv</span>
-            </div>
-
-            <div className="quick-grid">
-                <div className="quick-item clickable-quick" onClick={() => navigate("/recharge")}>
-                    <FiRefreshCw />
-                    <span>Recargar</span>
-                </div>
-
-                <div className="quick-item" onClick={() => navigate("/withdraw")}>
-                    <FiLogOut />
-                    <span>Retirar</span>
-                </div>
-
-                <div className="quick-item">
-                    <FiAward />
-                    <span>Centro de miembros</span>
-                </div>
-
-                <div className="quick-item">
-                    <FiBookOpen />
-                    <span>Tutorial del sistema</span>
-                </div>
-            </div>
-
-            <section className="section">
-                <h3 className="section-title">Clasificación de vídeos</h3>
-                <div className="category-grid">
-                    <div className="category-card">
-                        <div className="category-icon">AD</div>
-                        <div className="category-label">Anuncio comercial</div>
-                    </div>
-                    <div className="category-card">
-                        <div className="category-icon">•••</div>
-                        <div className="category-label">Remolque</div>
-                    </div>
-                    <div className="category-card">
-                        <div className="category-icon">♪</div>
-                        <div className="category-label">Música</div>
-                    </div>
-                </div>
-            </section>
-
-            <section className="section">
-                <div className="section-row">
-                    <h3 className="section-title">Anuncio comercial</h3>
-                    <div className="mint-dot">›</div>
-                </div>
-
-                <div className="video-grid">
-                    <VideoCard title="Tools made to help you save." views="100958" time="00:30" image={demoImg} />
-                    <VideoCard title="Coca-Cola to Turn Up the M..." views="119911" time="00:25" image={demoImg} />
-                    <VideoCard title="Make Every Wash Count" views="56468" time="00:30" image={demoImg} />
-                    <VideoCard title="Only Basketball | Nike" views="87089" time="01:00" image={demoImg} />
-                </div>
-            </section>
-
-            {showPopup && <PopupInfo onClose={() => setShowPopup(false)} />}
+  return (
+    <div className="page page-home">
+      <header className="top-header">
+        <div className="brand">
+          <div className="brand-logo">BF</div>
+          <div>
+            <div className="eyebrow">Panel principal</div>
+            <div className="brand-text">BaolongTV</div>
+          </div>
         </div>
-    );
+
+        <div className="top-actions">
+          <button className="app-mini-btn" type="button">
+            <FiDownloadCloud />
+            <span>App</span>
+          </button>
+          <FiGlobe className="header-icon" />
+        </div>
+      </header>
+
+      <div className="hero-banner">
+        <img src={demoImg} alt="BaolongTV" />
+      </div>
+
+      <div className="home-action-grid">
+        <button className="home-action-card" type="button" onClick={() => navigate("/recharge")}>
+          <span className="icon-badge tone-mint">
+            <FiRefreshCw />
+          </span>
+          <span>Recargar</span>
+        </button>
+
+        <button className="home-action-card" type="button" onClick={() => navigate("/withdraw")}>
+          <span className="icon-badge tone-peach">
+            <FiLogOut />
+          </span>
+          <span>Retirar</span>
+        </button>
+      </div>
+
+      <section className="panel home-status-panel">
+        <div className="section-row">
+          <div>
+            <div className="eyebrow">Resumen</div>
+            <h3 className="section-title">Actividad de plataforma</h3>
+          </div>
+          <span className="soft-pill">Actualizado</span>
+        </div>
+
+        <div className="updates-carousel">
+          {platformUpdates.map((item) => (
+            <article className="update-card" key={item.title}>
+              <span className={`icon-badge ${item.tone}`}>{item.icon}</span>
+              <div>
+                <h4>{item.title}</h4>
+                <p>{item.text}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
 }

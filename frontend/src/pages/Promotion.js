@@ -1,7 +1,18 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { FiChevronRight, FiCopy, FiGrid } from "react-icons/fi";
+import {
+  FiChevronRight,
+  FiCopy,
+  FiGrid,
+  FiLink,
+  FiSearch,
+  FiUsers,
+} from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { getPromotionDashboard } from "../services/authService";
+
+function money(value) {
+  return Number(value || 0).toFixed(2);
+}
 
 export default function Promotion() {
   const navigate = useNavigate();
@@ -11,7 +22,7 @@ export default function Promotion() {
 
   const showToast = (message) => {
     setToast(message);
-    setTimeout(() => setToast(""), 3000);
+    setTimeout(() => setToast(""), 2600);
   };
 
   const loadData = useCallback(async () => {
@@ -60,7 +71,7 @@ export default function Promotion() {
   };
 
   return (
-    <div className="page promotion-page">
+    <div className="page promotion-page promotion-page-v2">
       {toast && (
         <div className="success-toast">
           <strong>{toast}</strong>
@@ -68,103 +79,126 @@ export default function Promotion() {
       )}
 
       <div className="promotion-header">
-        <h2>Promoción</h2>
+        <div>
+          <div className="eyebrow">Red de referidos</div>
+          <h2>Promoción</h2>
+        </div>
 
         <button
           className="promotion-qr-btn"
           type="button"
           onClick={() => navigate("/invite")}
         >
-          Código QR de promoción <FiGrid />
+          QR <FiGrid />
         </button>
       </div>
 
-      <div className="promotion-stats-row">
-        <div className="promotion-stat-card">
-          <p>ingresos totales del usuario</p>
-          <strong>{Number(data.totalIncome).toFixed(2)}USDT</strong>
+      <div className="promotion-stats-row promo-income-row">
+        <div className="promotion-stat-card promo-income-card">
+          <p>Ingresos totales</p>
+          <strong>{money(data.totalIncome)} USDT</strong>
         </div>
 
-        <div className="promotion-stat-card">
-          <p>Ingresos añadidos hoy</p>
-          <strong>{Number(data.todayIncome).toFixed(2)}USDT</strong>
-        </div>
-      </div>
-
-      <div className="panel promotion-summary-panel">
-        <div className="promotion-date-row">
-          <span>🗓️ Seleccionar fecha de consulta</span>
-        </div>
-
-        <div className="promotion-total-row">
-          <span>Número total de miembros del equipo:</span>
-          <strong>{data.totalMembers}</strong>
-        </div>
-
-        <div className="promotion-total-row">
-          <span>Recarga total del equipo</span>
-          <strong>{Number(data.totalTeamRecharge).toFixed(2)} USDT</strong>
+        <div className="promotion-stat-card promo-income-card">
+          <p>Ingresos de hoy</p>
+          <strong>{money(data.todayIncome)} USDT</strong>
         </div>
       </div>
 
-      <div className="panel promotion-levels-panel">
-        <p className="added-today">
-          Agregado hoy:<strong>{data.todayAdded}</strong>
-        </p>
+      <div className="panel invite-mini-panel promotion-invite-panel">
+        <div className="panel-title-row promo-link-title">
+          <div className="promo-title-inline">
+            <h3>Enlace de invitación</h3>
+            <span className="icon-badge sm tone-mint">
+              <FiLink />
+            </span>
+          </div>
+        </div>
 
+        <div className="invite-link-row">
+          <span>{data.referralLink}</span>
+
+          <button type="button" onClick={copyLink} aria-label="Copiar enlace">
+            <FiCopy />
+          </button>
+        </div>
+      </div>
+
+      <div className="panel promotion-summary-panel compact-summary-panel">
+        <div className="promotion-mini-title">
+          <span className="icon-badge sm tone-lavender promo-summary-icon">
+            <FiUsers />
+          </span>
+          <div>
+            <strong>Resumen del equipo</strong>
+            <span>Datos generales de tu red</span>
+          </div>
+        </div>
+
+        <div className="promo-summary-grid three">
+          <div className="mini-metric-card">
+            <strong>{data.totalMembers}</strong>
+            <span>Miembros</span>
+          </div>
+
+          <div className="mini-metric-card">
+            <strong>{money(data.totalTeamRecharge)}</strong>
+            <span>Recarga</span>
+          </div>
+
+          <div className="mini-metric-card accent">
+            <strong>{data.todayAdded}</strong>
+            <span>Hoy</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="panel promotion-levels-panel promo-levels-compact">
         {data.levels.map((level) => (
           <div className="promotion-level-block" key={level.level}>
             <div className="level-title-row">
-              <h3>Datos de nivel {level.level}</h3>
+              <div className="level-title-left">
+                <span className="icon-badge sm tone-blue">
+                  <FiUsers />
+                </span>
+                <div>
+                  <h3 className="level-team-pill">Equipo Nivel {level.level}</h3>
+                </div>
+              </div>
 
               <button
                 type="button"
                 onClick={() => navigate(`/members/${level.level}`)}
               >
-                Lista de miembros <FiChevronRight />
+                <FiSearch />
+                <span>Miembros</span>
+                <FiChevronRight />
               </button>
             </div>
 
-            <div className="level-grid">
+            <div className="level-grid level-grid-compact">
               <div>
                 <strong>{level.totalMembers}</strong>
-                <span>Plantilla total</span>
+                <span>Total</span>
               </div>
 
               <div>
                 <strong>{level.activeMembers}</strong>
-                <span>Número de Activos</span>
+                <span>Activos</span>
               </div>
 
               <div>
-                <strong>{level.teamRecharge.toFixed(2)}</strong>
-                <span>Equipo de recarga</span>
+                <strong>{money(level.teamRecharge)}</strong>
+                <span>Recarga</span>
               </div>
 
               <div>
-                <strong>{level.totalCommission.toFixed(2)}</strong>
-                <span>Regreso total</span>
-              </div>
-
-              <div>
-                <strong>{level.todayCommission.toFixed(2)}</strong>
-                <span>Ganancias de hoy</span>
+                <strong>{money(level.totalCommission)}</strong>
+                <span>Comisión</span>
               </div>
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="panel invite-mini-panel">
-        <h3>Enlace de invitación</h3>
-
-        <div className="invite-link-row">
-          <span>{data.referralLink}</span>
-
-          <button type="button" onClick={copyLink}>
-            <FiCopy />
-          </button>
-        </div>
       </div>
     </div>
   );

@@ -1,6 +1,24 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { FiAward, FiCheckCircle, FiLock, FiStar, FiZap } from "react-icons/fi";
 import { getVipStatus, buyVipPackage } from "../services/authService";
 import { useNavigate } from "react-router-dom";
+
+const vipMeta = {
+  0: { label: "Base", tone: "tier-muted", icon: <FiLock /> },
+  1: { label: "Inicio", tone: "tier-blue", icon: <FiStar /> },
+  2: { label: "Impulso", tone: "tier-mint", icon: <FiZap /> },
+  3: { label: "Elite", tone: "tier-lavender", icon: <FiAward /> },
+  4: { label: "Prime", tone: "tier-peach", icon: <FiAward /> },
+  5: { label: "Máster", tone: "tier-success", icon: <FiCheckCircle /> },
+};
+
+function getVipMeta(level) {
+  return vipMeta[level] || {
+    label: "Premium",
+    tone: "tier-blue",
+    icon: <FiAward />,
+  };
+}
 
 export default function Vip() {
   const navigate = useNavigate();
@@ -58,7 +76,7 @@ export default function Vip() {
     }
 
     const confirmBuy = window.confirm(
-      `¿Confirmas comprar VIP${pkg.level} por ${price.toFixed(2)} USDT?`
+      `¿Confirmas comprar ${pkg.name} por ${price.toFixed(2)} USDT?`
     );
 
     if (!confirmBuy) return;
@@ -95,83 +113,101 @@ export default function Vip() {
         </div>
       )}
 
-      <h2 className="page-title">Centro de miembros</h2>
+      <div className="vip-main-header">
+        <div>
+          <div className="eyebrow">Centro de miembros</div>
+          <h2 className="page-title">Planes VIP</h2>
+        </div>
+        <span className="soft-pill">365 días</span>
+      </div>
 
       <div className="vip-summary">
         <div className="vip-summary-item">
           <strong>{Number(data?.todayIncomeUsdt || 0).toFixed(2)}</strong>
-          <span>Ganancias de hoy(USDT)</span>
+          <span>Ganancias hoy</span>
         </div>
 
         <div className="vip-summary-divider" />
 
         <div className="vip-summary-item">
           <strong>{Number(data?.earningsBalanceUsdt || 0).toFixed(2)}</strong>
-          <span>Ganancias acumuladas(USDT)</span>
+          <span>Acumulado</span>
         </div>
       </div>
 
       <div className="vip-countdown">
-        <strong>365 días</strong>
-        <span>Tiempo válido según paquete comprado</span>
+        <strong>Tiempo válido según paquete comprado</strong>
+        <span>Elige el plan que mejor se adapte a tu saldo de recarga.</span>
       </div>
 
-      <div className="vip-badge">Paquete especial</div>
-
       <div className="vip-package-list">
-        {packages.map((pkg) => (
-          <div className="vip-card" key={pkg.id}>
-            <div className="vip-card-header">
-              <h3>{pkg.name}</h3>
+        {packages.map((pkg) => {
+          const meta = getVipMeta(Number(pkg.level));
+
+          return (
+            <div className={`vip-card ${meta.tone}`} key={pkg.id}>
+              <div className="vip-card-header">
+                <div className="vip-title-wrap">
+                  <span className="vip-level-icon">{meta.icon}</span>
+                  <div>
+                    <h3>{pkg.name}</h3>
+                    <p>{meta.label}</p>
+                  </div>
+                </div>
+
+                {pkg.isActive ? (
+                  <span className="vip-status active">Activo</span>
+                ) : pkg.isPurchasable ? (
+                  <span className="vip-status available">Disponible</span>
+                ) : (
+                  <span className="vip-status soon">Próximamente</span>
+                )}
+              </div>
+
+              <div className="vip-stats">
+                <div>
+                  <strong>1 vez</strong>
+                  <span>Ingreso diario</span>
+                </div>
+
+                <div>
+                  <strong>{pkg.validDays} días</strong>
+                  <span>Duración</span>
+                </div>
+
+                <div>
+                  <strong>{Number(pkg.dailyIncomeUsdt).toFixed(2)}</strong>
+                  <span>USDT/día</span>
+                </div>
+              </div>
+
+              <div className="vip-price-row">
+                <span>Costo del plan</span>
+                <strong>{Number(pkg.priceUsdt).toFixed(2)} USDT</strong>
+              </div>
 
               {pkg.isActive ? (
-                <span className="vip-status active">Activo</span>
+                <button className="vip-btn disabled" disabled>
+                  Activo hasta {new Date(pkg.expiresAt).toLocaleDateString()}
+                </button>
               ) : pkg.isPurchasable ? (
-                <span className="vip-status available">Disponible</span>
+                <button
+                  className="vip-btn"
+                  onClick={() => handleBuy(pkg)}
+                  disabled={buyingLevel === pkg.level}
+                >
+                  {buyingLevel === pkg.level
+                    ? "Procesando..."
+                    : `Comprar · ${Number(pkg.priceUsdt).toFixed(2)} USDT`}
+                </button>
               ) : (
-                <span className="vip-status soon">Próximamente</span>
+                <button className="vip-btn disabled" disabled>
+                  Abierto pronto
+                </button>
               )}
             </div>
-
-            <div className="vip-stats">
-              <div>
-                <strong>1Veces</strong>
-                <span>Ganancias diarias</span>
-              </div>
-
-              <div>
-                <strong>{pkg.validDays}Días</strong>
-                <span>Tiempo válido</span>
-              </div>
-
-              <div>
-                <strong>{Number(pkg.dailyIncomeUsdt).toFixed(2)}USDT</strong>
-                <span>Ingreso diario</span>
-              </div>
-            </div>
-
-            {pkg.isActive ? (
-              <button className="vip-btn disabled" disabled>
-                Activo hasta{" "}
-                {new Date(pkg.expiresAt).toLocaleDateString()}
-              </button>
-            ) : pkg.isPurchasable ? (
-              <button
-                className="vip-btn"
-                onClick={() => handleBuy(pkg)}
-                disabled={buyingLevel === pkg.level}
-              >
-                {buyingLevel === pkg.level
-                  ? "Procesando..."
-                  : `Comprar por ${Number(pkg.priceUsdt).toFixed(2)} USDT`}
-              </button>
-            ) : (
-              <button className="vip-btn disabled" disabled>
-                Abierto pronto
-              </button>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
