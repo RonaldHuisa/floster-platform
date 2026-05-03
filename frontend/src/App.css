@@ -8986,3 +8986,279 @@ body {
     font-size: 10.5px !important;
   }
 }
+
+
+/* =========================================================
+   VIP - COLOR LATERAL SEGÚN ESTADO
+   Verde = activo/adquirido
+   Gris = disponible o próximamente
+========================================================= */
+
+.vip-card.vip-tier-active::before {
+  background: #16b985 !important;
+  box-shadow: 0 0 18px rgba(22, 185, 133, 0.18) !important;
+}
+
+.vip-card.vip-tier-inactive::before {
+  background: #b8c4d3 !important;
+  box-shadow: none !important;
+}
+
+.vip-card.vip-tier-active {
+  border-color: rgba(22, 185, 133, 0.26) !important;
+}
+
+.vip-card.vip-tier-inactive {
+  border-color: var(--line, #d9e5f2) !important;
+}
+
+.vip-card.vip-tier-active .vip-level-icon {
+  color: #16a878 !important;
+  background: #dcf8f1 !important;
+  border-color: #b7eadf !important;
+}
+
+.vip-card.vip-tier-inactive .vip-level-icon {
+  color: #7f91a8 !important;
+  background: #f4f8fc !important;
+  border-color: #d9e5f2 !important;
+}
+
+.vip-card.vip-tier-inactive .vip-title-wrap p {
+  color: #7f91a8 !important;
+}
+
+.vip-card.vip-tier-inactive .vip-status.available,
+.vip-card.vip-tier-inactive .vip-status.soon {
+  background: #f4f8fc !important;
+  color: #6d7f96 !important;
+  border-color: #d9e5f2 !important;
+}
+
+.vip-card.vip-tier-active .vip-status.active {
+  background: #dcf8f1 !important;
+  color: #16a878 !important;
+  border-color: #b7eadf !important;
+}
+
+
+/* =========================================================
+   VIP - BADGES DE ESTADO RESTAURADOS
+   Activo = verde
+   Disponible = azul
+   Próximamente = amarillo
+   La barra lateral se mantiene verde si está activo y gris si no está adquirido.
+========================================================= */
+
+.vip-card .vip-status.active {
+  background: var(--success-soft, #dcf8f1) !important;
+  color: var(--success, #16a878) !important;
+  border: 1px solid rgba(22, 185, 133, 0.22) !important;
+}
+
+.vip-card .vip-status.available {
+  background: var(--blue-soft, #eef3ff) !important;
+  color: var(--blue, #3279f6) !important;
+  border: 1px solid #cfe0ff !important;
+}
+
+.vip-card .vip-status.soon {
+  background: var(--warning-soft, #fff5dc) !important;
+  color: var(--warning, #bc8120) !important;
+  border: 1px solid rgba(242, 169, 59, 0.25) !important;
+}
+
+/* Disponible mantiene icono con acento azul suave */
+.vip-card.vip-tier-inactive:has(.vip-status.available) .vip-level-icon {
+  color: var(--blue, #3279f6) !important;
+  background: var(--blue-soft, #eef3ff) !important;
+  border-color: #cfe0ff !important;
+}
+
+/* Próximamente mantiene icono con acento amarillo suave */
+.vip-card.vip-tier-inactive:has(.vip-status.soon) .vip-level-icon {
+  color: var(--warning, #bc8120) !important;
+  background: var(--warning-soft, #fff5dc) !important;
+  border-color: rgba(242, 169, 59, 0.25) !important;
+}
+
+
+/* =========================================================
+   VIP - MODAL DE CONFIRMACIÓN DE COMPRA
+========================================================= */
+
+.vip-confirm-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9998 !important;
+  background: rgba(15, 31, 54, 0.42) !important;
+  backdrop-filter: blur(8px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 22px !important;
+}
+
+.vip-confirm-modal {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 360px !important;
+  border-radius: 26px !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  border: 1px solid var(--line, #d9e5f2) !important;
+  box-shadow: 0 24px 60px rgba(15, 31, 54, 0.24) !important;
+  padding: 22px !important;
+  color: var(--text, #0f1f36) !important;
+  animation: vipConfirmIn .18s ease-out !important;
+}
+
+@keyframes vipConfirmIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.vip-confirm-close {
+  position: absolute !important;
+  top: 14px !important;
+  right: 14px !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 13px !important;
+  border: 1px solid var(--line, #d9e5f2) !important;
+  background: #f7fafd !important;
+  color: #7f91a8 !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+.vip-confirm-close svg {
+  width: 17px !important;
+  height: 17px !important;
+}
+
+.vip-confirm-icon {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 19px !important;
+  background: linear-gradient(135deg, #dcf8f1, #eef6ff) !important;
+  border: 1px solid #b7eadf !important;
+  color: #16a878 !important;
+  display: grid !important;
+  place-items: center !important;
+  margin-bottom: 14px !important;
+}
+
+.vip-confirm-icon svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.vip-confirm-content span {
+  display: block !important;
+  color: #7f91a8 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .08em !important;
+  margin-bottom: 4px !important;
+}
+
+.vip-confirm-content h3 {
+  margin: 0 0 8px !important;
+  color: var(--text, #0f1f36) !important;
+  font-size: 24px !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.045em !important;
+}
+
+.vip-confirm-content p {
+  margin: 0 !important;
+  color: var(--text-soft, #526982) !important;
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  font-weight: 600 !important;
+}
+
+.vip-confirm-content p strong {
+  color: #0f1f36 !important;
+  font-weight: 850 !important;
+}
+
+.vip-confirm-summary {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  margin: 18px 0 !important;
+}
+
+.vip-confirm-summary div {
+  padding: 12px !important;
+  border-radius: 17px !important;
+  background: #f8fbff !important;
+  border: 1px solid var(--line, #d9e5f2) !important;
+  text-align: center !important;
+}
+
+.vip-confirm-summary span {
+  display: block !important;
+  color: #7f91a8 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  margin-bottom: 5px !important;
+}
+
+.vip-confirm-summary strong {
+  display: block !important;
+  color: var(--text, #0f1f36) !important;
+  font-size: 14px !important;
+  font-weight: 850 !important;
+}
+
+.vip-confirm-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1.2fr !important;
+  gap: 10px !important;
+}
+
+.vip-confirm-actions button {
+  height: 46px !important;
+  border-radius: 16px !important;
+  font-size: 14px !important;
+  font-weight: 820 !important;
+}
+
+.vip-confirm-cancel {
+  border: 1px solid var(--line, #d9e5f2) !important;
+  background: #f7fafd !important;
+  color: #526982 !important;
+}
+
+.vip-confirm-accept {
+  border: none !important;
+  background: #55cfc0 !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 24px rgba(85, 207, 192, .18) !important;
+}
+
+.vip-confirm-actions button:disabled,
+.vip-confirm-close:disabled {
+  opacity: .65 !important;
+  cursor: not-allowed !important;
+}
+
+@media (max-width: 390px) {
+  .vip-confirm-modal {
+    padding: 20px !important;
+    border-radius: 24px !important;
+  }
+
+  .vip-confirm-content h3 {
+    font-size: 22px !important;
+  }
+}

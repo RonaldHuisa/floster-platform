@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { QRCodeCanvas } from "qrcode.react";
 import { FiArrowLeft, FiCopy, FiCheckCircle } from "react-icons/fi";
@@ -36,7 +36,7 @@ export default function Recharge() {
     }, 1800);
   };
 
-  const loadWallet = async () => {
+  const loadWallet = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -49,7 +49,7 @@ export default function Recharge() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadWallet();
@@ -57,7 +57,7 @@ export default function Recharge() {
     return () => {
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     };
-  }, []);
+  }, [loadWallet]);
 
   const address =
     wallet?.address ||

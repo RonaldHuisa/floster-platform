@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { FiAward, FiCheckCircle, FiLock, FiStar, FiZap } from "react-icons/fi";
+import { FiAward, FiCheckCircle, FiLock, FiStar, FiZap, FiShoppingBag, FiX } from "react-icons/fi";
 import { getVipStatus, buyVipPackage } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 
@@ -27,6 +27,7 @@ export default function Vip() {
   const [loading, setLoading] = useState(true);
   const [buyingLevel, setBuyingLevel] = useState(null);
   const [toast, setToast] = useState("");
+  const [confirmPackage, setConfirmPackage] = useState(null);
 
   const showToast = useCallback((message) => {
     setToast(message);
@@ -75,17 +76,18 @@ export default function Vip() {
       return;
     }
 
-    const confirmBuy = window.confirm(
-      `¿Confirmas comprar ${pkg.name} por ${price.toFixed(2)} USDT?`
-    );
+    setConfirmPackage(pkg);
+  };
 
-    if (!confirmBuy) return;
+  const confirmBuyPackage = async () => {
+    if (!confirmPackage) return;
 
     try {
-      setBuyingLevel(pkg.level);
+      setBuyingLevel(confirmPackage.level);
 
-      const result = await buyVipPackage(pkg.level);
+      const result = await buyVipPackage(confirmPackage.level);
 
+      setConfirmPackage(null);
       showToast(result.message || "Compra VIP realizada.");
       await loadVip();
     } catch (error) {
@@ -93,6 +95,11 @@ export default function Vip() {
     } finally {
       setBuyingLevel(null);
     }
+  };
+
+  const closeBuyModal = () => {
+    if (buyingLevel) return;
+    setConfirmPackage(null);
   };
 
   if (loading) {
@@ -110,6 +117,70 @@ export default function Vip() {
       {toast && (
         <div className="success-toast">
           <strong>{toast}</strong>
+        </div>
+      )}
+
+      {confirmPackage && (
+        <div className="vip-confirm-overlay" role="dialog" aria-modal="true">
+          <div className="vip-confirm-modal">
+            <button
+              type="button"
+              className="vip-confirm-close"
+              onClick={closeBuyModal}
+              disabled={Boolean(buyingLevel)}
+              aria-label="Cerrar"
+            >
+              <FiX />
+            </button>
+
+            <div className="vip-confirm-icon">
+              <FiShoppingBag />
+            </div>
+
+            <div className="vip-confirm-content">
+              <span>Confirmar compra</span>
+              <h3>{confirmPackage.name}</h3>
+              <p>
+                Se descontarán{" "}
+                <strong>{Number(confirmPackage.priceUsdt).toFixed(2)} USDT</strong>{" "}
+                de tu saldo de recarga.
+              </p>
+            </div>
+
+            <div className="vip-confirm-summary">
+              <div>
+                <span>Duración</span>
+                <strong>{confirmPackage.validDays} días</strong>
+              </div>
+
+              <div>
+                <span>Ingreso diario</span>
+                <strong>
+                  {Number(confirmPackage.dailyIncomeUsdt).toFixed(2)} USDT
+                </strong>
+              </div>
+            </div>
+
+            <div className="vip-confirm-actions">
+              <button
+                type="button"
+                className="vip-confirm-cancel"
+                onClick={closeBuyModal}
+                disabled={Boolean(buyingLevel)}
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                className="vip-confirm-accept"
+                onClick={confirmBuyPackage}
+                disabled={Boolean(buyingLevel)}
+              >
+                {buyingLevel ? "Procesando..." : "Confirmar"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -145,7 +216,12 @@ export default function Vip() {
           const meta = getVipMeta(Number(pkg.level));
 
           return (
-            <div className={`vip-card ${meta.tone}`} key={pkg.id}>
+            <div
+              className={`vip-card ${meta.tone} ${
+                pkg.isActive ? "vip-tier-active" : "vip-tier-inactive"
+              }`}
+              key={pkg.id}
+            >
               <div className="vip-card-header">
                 <div className="vip-title-wrap">
                   <span className="vip-level-icon">{meta.icon}</span>
