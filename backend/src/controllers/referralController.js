@@ -61,20 +61,20 @@ async function getPromotionDashboard(req, res) {
         INNER JOIN team ON child.referred_by_id = team.id
         WHERE team.level < 3
       ),
-      team_with_recharge AS (
+        team_with_recharge AS (
         SELECT
-          team.id,
-          team.level,
-          team.created_at,
-          team.vip_level,
-          COALESCE((
-            SELECT SUM(d.amount_usdt)
-            FROM deposits d
-            WHERE d.user_id = team.id
-            AND d.status = 'confirmed'
-          ), 0) AS recharge_amount
+            team.id,
+            team.level,
+            team.created_at,
+            team.vip_level,
+            COALESCE((
+            SELECT SUM(vp.price_usdt)
+            FROM vip_purchases vp
+            WHERE vp.user_id = team.id
+                AND vp.status IN ('active', 'completed', 'expired')
+            ), 0) AS recharge_amount
         FROM team
-      )
+        )
       SELECT
         level,
         COUNT(*) AS total_members,
@@ -216,7 +216,24 @@ async function getMembersByLevel(req, res) {
           SELECT COUNT(*)
           FROM users direct
           WHERE direct.referred_by_id = team.id
-        ) AS direct_subordinates
+        ) AS direct_subordinates,
+        (
+        SELECT vp.level
+        FROM vip_purchases vp
+        WHERE vp.user_id = team.id
+            AND vp.status IN ('active', 'completed', 'expired')
+        ORDER BY vp.purchased_at DESC
+        LIMIT 1
+        ) AS purchased_vip_level,
+        (
+        SELECT vp.price_usdt
+        FROM vip_purchases vp
+        WHERE vp.user_id = team.id
+            AND vp.status IN ('active', 'completed', 'expired')
+        ORDER BY vp.purchased_at DESC
+        LIMIT 1
+        ) AS purchased_vip_price
+
       FROM team
       WHERE team.level = $2
       ORDER BY team.created_at DESC
@@ -229,6 +246,8 @@ async function getMembersByLevel(req, res) {
             email: maskEmail(item.email),
             vipLevel: Number(item.vip_level || 0),
             directSubordinates: Number(item.direct_subordinates || 0),
+            purchasedVipLevel: Number(item.purchased_vip_level || 0),
+            purchasedVipPrice: Number(item.purchased_vip_price || 0),
             registeredAt: item.created_at,
         }));
 

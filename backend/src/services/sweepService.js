@@ -66,7 +66,7 @@ async function ensureUserHasBNB(userWalletAddress, userSigner, usdtContract, amo
     gasLimit = 100000n;
   }
 
-  const buffer = ethers.parseEther(process.env.BNB_TOPUP_BUFFER || "0.00008");
+  const buffer = ethers.parseEther(process.env.BNB_TOPUP_BUFFER || "0.00005");
   const requiredBNB = gasLimit * gasPrice + buffer;
 
   if (bnbBalance >= requiredBNB) {
