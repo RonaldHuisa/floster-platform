@@ -231,10 +231,10 @@ export default function Recharge() {
             </div>
 
             <ol className="friendly-list">
-              <li>📌 Copia la dirección superior o escanea el código QR.</li>
-              <li>🟡 Usa únicamente la red <strong>BNB Smart Chain BEP20</strong> para enviar USDT.</li>
-              <li>✅ Después de enviar el pago, presiona <strong>“Recarga completa”</strong>. Este paso es vital para verificar la blockchain y abonar tu saldo.</li>
-              <li>🔒 No envíes otros activos ni uses otra red. Los depósitos duplicados no se vuelven a sumar.</li>
+              <li>Copia la dirección superior o escanea el código QR.</li>
+              <li>Usa únicamente la red <strong>BNB Smart Chain BEP20</strong> para enviar USDT.</li>
+              <li>Después de enviar el pago, presiona <strong>“Recarga completa”</strong>. Este paso es vital para verificar la blockchain y abonar tu saldo.</li>
+              <li>No envíes otros activos ni uses otra red. Los depósitos duplicados no se vuelven a sumar.</li>
             </ol>
           </div>
         </>

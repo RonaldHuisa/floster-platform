@@ -334,7 +334,7 @@ export default function Home() {
         </div>
 
         <p className="home-vip-note">
-          Los valores pueden variar según la configuración activa de la plataforma.
+          Puedes tener varios VIP al mismo tiempo para maximizar ganancias.
         </p>
       </section>
 
