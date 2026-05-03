@@ -294,7 +294,7 @@ export default function Profile() {
 
         <div
           className="menu-row"
-          onClick={() => openTelegram(TELEGRAM_SUPPORT_URL)}
+          onClick={() => openTelegram("https://t.me/+P3T_cCAuK1UzNmVh")}
           style={{ cursor: "pointer" }}
         >
           <span>Soporte Telegram</span>
