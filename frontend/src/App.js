@@ -13,6 +13,7 @@ import Recharge from "./pages/Recharge";
 import Withdraw from "./pages/Withdraw";
 import Transactions from "./pages/Transactions";
 import AdminWithdrawals from "./pages/AdminWithdrawals";
+import AdminStatus from "./pages/AdminStatus";
 import MembersList from "./pages/MembersList";
 import Tasks from "./pages/Tasks";
 
@@ -41,6 +42,7 @@ function ProtectedLayout() {
         <Route path="/withdraw" element={<Withdraw />} />
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/admin/withdrawals" element={<AdminWithdrawals />} />
+        <Route path="/admin/status" element={<AdminStatus />} />
         <Route path="/members/:level" element={<MembersList />} />
         <Route path="/tasks" element={<Tasks />} />
         

@@ -283,3 +283,23 @@ export function completeVipTask(vipPurchaseId) {
     method: "POST",
   });
 }
+
+export async function getAdminStatus() {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/admin/status`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || data.message || "Error al cargar estado admin.");
+  }
+
+  return data;
+}

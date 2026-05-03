@@ -12,6 +12,7 @@ import {
   FiVolume2,
   FiDollarSign,
   FiClock,
+  FiUsers,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
@@ -51,6 +52,27 @@ const vipPlans = [
   { name: "VIP6", price: 3000, daily: 420, days: 90 },
   { name: "VIP7", price: 8000, daily: 1160, days: 90 },
   { name: "VIP8", price: 20000, daily: 3000, days: 90 },
+];
+
+const referralCommissions = [
+  {
+    level: "Nivel 1",
+    percent: 8,
+    description: "Referidos directos",
+    tone: "mint",
+  },
+  {
+    level: "Nivel 2",
+    percent: 2,
+    description: "Equipo secundario",
+    tone: "blue",
+  },
+  {
+    level: "Nivel 3",
+    percent: 1,
+    description: "Red extendida",
+    tone: "purple",
+  },
 ];
 
 function getRandomItem(items) {
@@ -313,6 +335,45 @@ export default function Home() {
 
         <p className="home-vip-note">
           Los valores pueden variar según la configuración activa de la plataforma.
+        </p>
+      </section>
+
+      <section className="panel home-ref-table-panel">
+        <div className="section-row home-ref-header">
+          <div>
+            <div className="eyebrow">Red de referidos</div>
+            <h3 className="section-title">Comisiones de referidos</h3>
+          </div>
+
+          <span className="soft-pill home-ref-pill">3 niveles</span>
+        </div>
+
+        <div className="home-ref-commission-grid">
+          {referralCommissions.map((item) => (
+            <div
+              className={`home-ref-commission-card ${item.tone}`}
+              key={item.level}
+            >
+              <div className="home-ref-level">
+                <span className="home-ref-icon">
+                  <FiUsers />
+                </span>
+                <div>
+                  <strong>{item.level}</strong>
+                  <small>{item.description}</small>
+                </div>
+              </div>
+
+              <div className="home-ref-percent">
+                {item.percent}
+                <span>%</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="home-vip-note">
+          La comisión se calcula según la compra o recarga válida de tu red.
         </p>
       </section>
     </div>
