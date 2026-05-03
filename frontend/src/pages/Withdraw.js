@@ -227,7 +227,7 @@ export default function Withdraw() {
 
       <div className="withdraw-mini-reminder">
         <strong>Recordatorio:</strong> Solo se pueden retirar las ganancias disponibles;
-        el saldo de recarga/VIP no se considera retirable.
+        el saldo de recarga/VIP no se considera retirable. . El pago puede demorar de 5 minutos a 24 horas.
       </div>
     </div>
   );
