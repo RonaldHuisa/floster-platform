@@ -17,7 +17,7 @@ export default function Register() {
   const [error, setError] = useState("");
 
   const [searchParams] = useSearchParams();
-  const referralFromUrl = searchParams.get("ref") || "351794";
+  const referralFromUrl = searchParams.get("ref") || "322328";
 
   const [referralCode, setReferralCode] = useState(referralFromUrl);
 
