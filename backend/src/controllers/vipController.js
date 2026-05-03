@@ -6,40 +6,28 @@ const {
     createReferralCommissions,
 } = require("../services/referralCommissionService");
 
-async function getCurrentTaskPeriod(client) {
-    const result = await client.query(`
+
+async function getCurrentTaskPeriod(pool) {
+    const result = await pool.query(`
         WITH lima_time AS (
             SELECT 
-                NOW() AS server_now,
+                NOW() AS now_utc,
                 NOW() AT TIME ZONE 'America/Lima' AS now_lima
         ),
-        reset_calc AS (
+        current_period AS (
             SELECT
-                server_now,
-                now_lima,
-                (now_lima::date + TIME '00:50') AS today_reset_lima
+                CASE
+                    WHEN now_lima::time >= TIME '09:00'
+                    THEN (date_trunc('day', now_lima) + INTERVAL '9 hours') AT TIME ZONE 'America/Lima'
+                    ELSE (date_trunc('day', now_lima) - INTERVAL '15 hours') AT TIME ZONE 'America/Lima'
+                END AS period_start
             FROM lima_time
-        ),
-        period_calc AS (
-            SELECT
-                server_now,
-                CASE
-                    WHEN now_lima >= today_reset_lima
-                    THEN today_reset_lima
-                    ELSE today_reset_lima - INTERVAL '1 day'
-                END AS period_start_lima,
-                CASE
-                    WHEN now_lima >= today_reset_lima
-                    THEN today_reset_lima + INTERVAL '1 day'
-                    ELSE today_reset_lima
-                END AS period_end_lima
-            FROM reset_calc
         )
         SELECT
-            period_start_lima AT TIME ZONE 'America/Lima' AS period_start,
-            period_end_lima AT TIME ZONE 'America/Lima' AS period_end,
-            server_now
-        FROM period_calc
+            period_start,
+            period_start + INTERVAL '1 day' AS period_end,
+            NOW() AS server_now
+        FROM current_period
     `);
 
     return result.rows[0];
@@ -172,9 +160,17 @@ async function buyVipPackage(req, res) {
     const userId = getAuthUserId(req);
     const { level } = req.body;
 
-    if (!level) {
+    if (level === undefined || level === null || level === "") {
         return res.status(400).json({
             message: "Selecciona un paquete VIP.",
+        });
+    }
+
+    const numericLevel = Number(level);
+
+    if (!Number.isInteger(numericLevel) || numericLevel < 0) {
+        return res.status(400).json({
+            message: "Nivel VIP inválido.",
         });
     }
 
@@ -196,7 +192,7 @@ async function buyVipPackage(req, res) {
             FROM vip_packages
             WHERE level = $1
             `,
-            [level]
+            [numericLevel]
         );
 
         if (packageResult.rows.length === 0) {

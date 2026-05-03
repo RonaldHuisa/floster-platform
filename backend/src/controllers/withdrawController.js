@@ -23,7 +23,7 @@ async function getCurrentWithdrawPeriod(client) {
       SELECT
         server_now,
         now_lima,
-        (now_lima::date + TIME '00:50') AS today_reset_lima
+        (now_lima::date + TIME '09:00') AS today_reset_lima
       FROM lima_time
     ),
     period_calc AS (

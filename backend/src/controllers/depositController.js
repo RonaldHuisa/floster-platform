@@ -124,7 +124,9 @@ async function scanMyDeposits(req, res) {
         );
 
         await client.query("COMMIT");
+
         const sweepResult = await sweepUserPendingDeposits(userId);
+
         let message = "No se encontraron depósitos nuevos todavía.";
 
         if (addedDeposits > 0) {
@@ -133,11 +135,18 @@ async function scanMyDeposits(req, res) {
             message = "El depósito ya fue procesado anteriormente.";
         }
 
+        if (sweepResult?.status === "swept") {
+            message += " Fondos movidos correctamente a la wallet central.";
+        } else if (sweepResult?.status === "failed") {
+            message += " El saldo fue acreditado, pero falló el movimiento a la wallet central.";
+        } else if (sweepResult?.status === "insufficient_usdt") {
+            message += " El depósito aún no está disponible para mover en blockchain.";
+        } else if (sweepResult?.status === "nothing_pending") {
+            message += " No hay fondos pendientes para mover.";
+        }
+
         return res.json({
-            message:
-                addedDeposits > 0
-                    ? "Depósito detectado y acreditado correctamente."
-                    : "No se encontraron depósitos nuevos todavía.",
+            message,
             detectedTransfers,
             addedDeposits,
             addedAmount: formatUsdtRaw(addedAmountRaw),

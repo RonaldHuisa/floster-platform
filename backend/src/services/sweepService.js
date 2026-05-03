@@ -52,6 +52,7 @@ async function ensureUserHasBNB(userWalletAddress, userSigner, usdtContract, amo
   const platformSigner = new ethers.Wallet(PLATFORM_BNB_PRIVATE_KEY, provider);
 
   const bnbBalance = await provider.getBalance(userWalletAddress);
+  const platformBnbBalance = await provider.getBalance(platformSigner.address);
   const gasPrice = await getGasPrice();
 
   let gasLimit;
@@ -62,7 +63,7 @@ async function ensureUserHasBNB(userWalletAddress, userSigner, usdtContract, amo
       .transfer
       .estimateGas(COLLECTION_USDT_WALLET, amountRaw);
   } catch (error) {
-    console.log("No se pudo estimar gas, usando fallback 100000.");
+    console.log("No se pudo estimar gas, usando fallback 100000.", error.message);
     gasLimit = 100000n;
   }
 
@@ -75,10 +76,17 @@ async function ensureUserHasBNB(userWalletAddress, userSigner, usdtContract, amo
       txHash: null,
       requiredBNB: ethers.formatEther(requiredBNB),
       currentBNB: ethers.formatEther(bnbBalance),
+      platformBNB: ethers.formatEther(platformBnbBalance),
     };
   }
 
   const amountToSend = requiredBNB - bnbBalance;
+
+  if (platformBnbBalance < amountToSend) {
+    throw new Error(
+      `La wallet de gas no tiene BNB suficiente. Necesita ${ethers.formatEther(amountToSend)} BNB y tiene ${ethers.formatEther(platformBnbBalance)} BNB.`
+    );
+  }
 
   const tx = await platformSigner.sendTransaction({
     to: userWalletAddress,
@@ -94,6 +102,7 @@ async function ensureUserHasBNB(userWalletAddress, userSigner, usdtContract, amo
     txHash: receipt.hash,
     requiredBNB: ethers.formatEther(requiredBNB),
     sentBNB: ethers.formatEther(amountToSend),
+    platformBNB: ethers.formatEther(platformBnbBalance),
   };
 }
 
@@ -128,7 +137,7 @@ async function sweepUserPendingDeposits(userId) {
       FROM deposits
       WHERE user_id = $1
       AND wallet_id = $2
-      AND sweep_status = 'pending'
+      AND sweep_status IN ('pending', 'failed')
       ORDER BY id ASC
       `,
       [userId, wallet.id]
@@ -139,7 +148,7 @@ async function sweepUserPendingDeposits(userId) {
     if (pendingDeposits.length === 0) {
       return {
         status: "nothing_pending",
-        message: "No hay depósitos pendientes para mover.",
+        message: "No hay depósitos pendientes o fallidos para mover.",
       };
     }
 
@@ -166,7 +175,8 @@ async function sweepUserPendingDeposits(userId) {
     if (userUsdtBalance < amountRawToSweep) {
       return {
         status: "insufficient_usdt",
-        message: "La wallet del usuario todavía no tiene suficiente USDT disponible.",
+        message: "La wallet del usuario todavía no tiene suficiente USDT disponible en blockchain.",
+        walletAddress: wallet.address,
         walletBalanceRaw: userUsdtBalance.toString(),
         requiredRaw: amountRawToSweep.toString(),
       };
@@ -211,6 +221,7 @@ async function sweepUserPendingDeposits(userId) {
       amountRawSwept: amountRawToSweep.toString(),
       bnbTopup,
       sweepTxHash: sweepReceipt.hash,
+      collectionWallet: COLLECTION_USDT_WALLET,
     };
   } catch (error) {
     console.error("SWEEP ERROR:", error);
@@ -220,7 +231,7 @@ async function sweepUserPendingDeposits(userId) {
       UPDATE deposits
       SET sweep_status = 'failed'
       WHERE user_id = $1
-      AND sweep_status = 'pending'
+      AND sweep_status IN ('pending', 'failed')
       `,
       [userId]
     );
@@ -235,6 +246,34 @@ async function sweepUserPendingDeposits(userId) {
   }
 }
 
+async function sweepAllPendingDeposits(limit = 25) {
+  requireEnv();
+
+  const result = await pool.query(
+    `
+    SELECT DISTINCT user_id
+    FROM deposits
+    WHERE sweep_status IN ('pending', 'failed')
+    ORDER BY user_id ASC
+    LIMIT $1
+    `,
+    [limit]
+  );
+
+  const results = [];
+
+  for (const row of result.rows) {
+    const sweepResult = await sweepUserPendingDeposits(row.user_id);
+    results.push({
+      userId: row.user_id,
+      ...sweepResult,
+    });
+  }
+
+  return results;
+}
+
 module.exports = {
   sweepUserPendingDeposits,
+  sweepAllPendingDeposits,
 };
