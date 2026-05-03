@@ -174,7 +174,7 @@ export default function Tasks() {
           <strong>{countdown}</strong>
           <span>
             <FiClock />
-            Reinicio diario: 9:00 AM hora Perú
+            Reinicio diario: 2:00 PM (UTC)
           </span>
         </div>
 
