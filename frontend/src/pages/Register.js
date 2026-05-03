@@ -90,25 +90,15 @@ export default function Register() {
   return (
     <div className="auth-page">
       <div className="auth-logo-block">
-        <div className="auth-logo">BF</div>
+        <div className="auth-logo auth-logo-image">
+          <img src="/luven_favicon.ico" alt="Luven" />
+        </div>
         <h1>Comienza ahora</h1>
         <p>Crea tu cuenta y accede al panel de inmediato.</p>
       </div>
 
       <div className="auth-card">
         <form onSubmit={handleRegister} className="auth-form">
-          <label className="auth-field-label">Código de invitación</label>
-          <div className="auth-input-wrap">
-            <FiHash />
-            <input
-              className="auth-input"
-              value={referralCode}
-              onChange={(e) => setReferralCode(e.target.value)}
-              placeholder="Código de invitación"
-              readOnly
-            />
-          </div>
-
           <label className="auth-field-label">Correo electrónico</label>
           <div className="auth-input-wrap">
             <FiMail />
@@ -161,6 +151,18 @@ export default function Register() {
             >
               {showSecurityPassword ? <FiEyeOff /> : <FiEye />}
             </button>
+          </div>
+
+          <label className="auth-field-label">Código de invitación</label>
+          <div className="auth-input-wrap auth-invite-locked">
+            <FiHash />
+            <input
+              className="auth-input"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value)}
+              placeholder="Código de invitación"
+              readOnly
+            />
           </div>
 
           {error && <div className="auth-error">{error}</div>}

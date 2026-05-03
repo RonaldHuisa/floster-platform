@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FiClock } from "react-icons/fi";
 import BottomNav from "../components/BottomNav";
 import { getTasksDashboard, completeVipTask } from "../services/authService";
 
@@ -7,7 +8,6 @@ function formatCountdown(ms) {
   if (ms <= 0) return "00:00:00";
 
   const totalSeconds = Math.floor(ms / 1000);
-
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
@@ -18,8 +18,13 @@ function formatCountdown(ms) {
   )}:${String(seconds).padStart(2, "0")}`;
 }
 
+function formatAmount(value) {
+  return Number(value || 0).toFixed(2);
+}
+
 export default function Tasks() {
   const navigate = useNavigate();
+  const messageTimerRef = useRef(null);
 
   const [data, setData] = useState(null);
   const [activeTab, setActiveTab] = useState("pending");
@@ -45,9 +50,27 @@ export default function Tasks() {
   }, [loadTasks]);
 
   useEffect(() => {
+    if (!message) return undefined;
+
+    if (messageTimerRef.current) {
+      clearTimeout(messageTimerRef.current);
+    }
+
+    messageTimerRef.current = setTimeout(() => {
+      setMessage("");
+    }, 3200);
+
+    return () => {
+      if (messageTimerRef.current) {
+        clearTimeout(messageTimerRef.current);
+      }
+    };
+  }, [message]);
+
+  useEffect(() => {
     if (!data?.nextResetAt) {
       setCountdown("00:00:00");
-      return;
+      return undefined;
     }
 
     const updateCountdown = () => {
@@ -91,6 +114,7 @@ export default function Tasks() {
 
       setMessage(result.message || "Tarea completada correctamente.");
       await loadTasks();
+      setActiveTab("completed");
     } catch (error) {
       setMessage(error.message || "Error al completar tarea.");
     } finally {
@@ -98,35 +122,38 @@ export default function Tasks() {
     }
   };
 
-  const balance = Number(data?.withdrawableBalanceUsdt ?? 0).toFixed(2);
+  const balance = formatAmount(data?.withdrawableBalanceUsdt ?? 0);
   const completed = Number(data?.completedTasks ?? completedTasksList.length);
   const total = Number(data?.totalTasks ?? tasks.length);
   const pending = Number(data?.pendingTasks ?? pendingTasks.length);
 
   return (
-    <div className="tasks-page">
-      <div className="tasks-header">
-        <div className="tasks-avatar">BF</div>
-        <h1 className="tasks-title">Tareas</h1>
+    <div className="page tasks-clean-page">
+      <div className="tasks-clean-header">
+        <div className="tasks-clean-logo">
+          <img src="/luven_favicon.ico" alt="Luven" />
+        </div>
+
+        <h1 className="tasks-clean-title">Tareas</h1>
       </div>
 
-      <section className="tasks-card">
-        <div className="tasks-balance-row">
-          <div className="tasks-balance">
-            <strong>{balance}</strong>
+      <section className="panel tasks-clean-card">
+        <div className="tasks-clean-top">
+          <div className="tasks-clean-balance">
             <span>Balance total</span>
+            <strong>{balance}</strong>
           </div>
 
           <button
             type="button"
-            className="tasks-recharge-btn"
+            className="tasks-clean-recharge"
             onClick={() => navigate("/recharge")}
           >
             Recargar
           </button>
         </div>
 
-        <div className="tasks-stats">
+        <div className="tasks-clean-stats">
           <div>
             <strong>{completed}</strong>
             <span>Terminado</span>
@@ -134,7 +161,7 @@ export default function Tasks() {
 
           <div>
             <strong>{total}</strong>
-            <span>Todo</span>
+            <span>Total</span>
           </div>
 
           <div>
@@ -143,19 +170,20 @@ export default function Tasks() {
           </div>
         </div>
 
-        <div className="tasks-countdown">
+        <div className="tasks-clean-countdown">
           <strong>{countdown}</strong>
-          <span>Reinicio diario: 9:00 AM hora Perú</span>
+          <span>
+            <FiClock />
+            Reinicio diario: 9:00 AM hora Perú
+          </span>
         </div>
 
-        <button type="button" className="tasks-gate-btn">
-          Gatear
-        </button>
-
-        <div className="tasks-tabs">
+        <div className="tasks-clean-tabs">
           <button
             type="button"
-            className={`tasks-tab ${activeTab === "pending" ? "active" : ""}`}
+            className={`tasks-clean-tab ${
+              activeTab === "pending" ? "active" : ""
+            }`}
             onClick={() => setActiveTab("pending")}
           >
             En curso
@@ -163,58 +191,72 @@ export default function Tasks() {
 
           <button
             type="button"
-            className={`tasks-tab ${activeTab === "completed" ? "active" : ""
-              }`}
+            className={`tasks-clean-tab ${
+              activeTab === "completed" ? "active" : ""
+            }`}
             onClick={() => setActiveTab("completed")}
           >
             Terminado
           </button>
         </div>
 
-        <div className="tasks-list">
-          {loading && <div className="tasks-empty">Cargando tareas...</div>}
+        <div className="tasks-clean-list">
+          {loading && <div className="tasks-clean-empty">Cargando tareas...</div>}
 
           {!loading && currentList.length === 0 && (
-            <div className="tasks-empty">
-              No tienes tareas disponibles. Compra un VIP activo o espera el
-              próximo reinicio.
+            <div className="tasks-clean-empty">
+              {activeTab === "pending"
+                ? "No tienes tareas disponibles. Compra un VIP activo o espera el próximo reinicio."
+                : "Todavía no tienes tareas completadas en este reinicio."}
             </div>
           )}
 
           {!loading &&
             currentList.map((task) => {
-              const taskId = task.id || task.taskId || task.vipPurchaseId || task.vip_purchase_id;
+              const taskId =
+                task.id ||
+                task.taskId ||
+                task.vipPurchaseId ||
+                task.vip_purchase_id;
 
               return (
-                <div className="task-item" key={taskId || `${task.vipLevel}-${task.rewardUsdt}`}>
-                  <h3>{task.title || `Tarea VIP${task.vipLevel || task.level || ""}`}</h3>
+                <article
+                  className="tasks-clean-item"
+                  key={taskId || `${task.vipLevel}-${task.rewardUsdt}`}
+                >
+                  <div>
+                    <h3>
+                      {task.title ||
+                        `Tarea VIP${task.vipLevel || task.level || ""}`}
+                    </h3>
 
-                  <p>
-                    Ganancia:{" "}
-                    <strong>
-                      {Number(task.rewardUsdt || task.reward_usdt || 0).toFixed(2)} USDT
-                    </strong>
-                  </p>
+                    <p>
+                      Ganancia:{" "}
+                      <strong>
+                        {formatAmount(task.rewardUsdt || task.reward_usdt)} USDT
+                      </strong>
+                    </p>
+                  </div>
 
                   {task.status === "completed" ? (
-                    <div className="task-completed">Completado</div>
+                    <span className="tasks-clean-completed">Completado</span>
                   ) : (
                     <button
                       type="button"
-                      className="task-complete-btn"
+                      className="tasks-clean-complete-btn"
                       disabled={!taskId || processingTaskId === taskId}
                       onClick={() => handleCompleteTask(taskId)}
                     >
-                      {processingTaskId === taskId ? "Procesando..." : "Completar tarea"}
+                      {processingTaskId === taskId ? "Procesando..." : "Completar"}
                     </button>
                   )}
-                </div>
+                </article>
               );
             })}
         </div>
       </section>
 
-      {message && <div className="toast-message">{message}</div>}
+      {message && <div className="tasks-clean-toast">{message}</div>}
 
       <BottomNav />
     </div>

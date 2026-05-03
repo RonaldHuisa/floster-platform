@@ -6553,3 +6553,2005 @@ button:focus-visible {
     font-size: 10.8px;
   }
 }
+
+
+/* =========================================================
+   REGISTRO - INVITACIÓN ABAJO Y BLOQUEADA
+   Mueve visualmente al estilo gris limpio y sin efecto raro.
+========================================================= */
+
+.auth-invite-locked {
+  background: #eef4fa !important;
+  border-color: #d7e4f1 !important;
+  box-shadow: none !important;
+}
+
+.auth-invite-locked svg {
+  color: #7f95ad !important;
+}
+
+.auth-invite-locked .auth-input,
+.auth-invite-locked input {
+  color: #667c96 !important;
+  -webkit-text-fill-color: #667c96 !important;
+  cursor: not-allowed !important;
+}
+
+.auth-invite-locked .auth-input[readonly],
+.auth-invite-locked input[readonly] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.auth-invite-locked::before,
+.auth-invite-locked::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Evita estilos viejos que generaban una mancha gris dentro del input readonly */
+.auth-input[readonly] {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+
+/* =========================================================
+   AUTH LOGO - ICONO CENTRADO LOGIN / REGISTER
+   Usa public/luven_favicon.ico
+========================================================= */
+
+.auth-logo.auth-logo-image {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.auth-logo.auth-logo-image img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: auto !important;
+}
+
+/* Tamaño visual consistente del icono en Login y Register */
+.auth-logo-block .auth-logo.auth-logo-image {
+  width: 78px !important;
+  height: 78px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+
+/* =========================================================
+   HOME LUVEN PREMIUM - aplicado sobre frontend actual 0305_0226
+========================================================= */
+
+.home-premium-page {
+  padding-bottom: 96px;
+}
+
+.home-premium-header {
+  margin-bottom: 16px !important;
+}
+
+.home-premium-brand {
+  gap: 11px !important;
+}
+
+.home-luven-logo {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 17px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: linear-gradient(145deg, #102033, #182c45) !important;
+  border: 1px solid rgba(245, 199, 107, 0.38) !important;
+  box-shadow: 0 12px 26px rgba(15, 31, 54, 0.16), inset 0 0 0 1px rgba(255,255,255,.06) !important;
+  display: grid !important;
+  place-items: center !important;
+  animation: luvenLogoFloat 3.8s ease-in-out infinite;
+}
+
+.home-luven-logo img {
+  width: 82% !important;
+  height: 82% !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+.home-luven-title {
+  color: #0f1f36 !important;
+  font-weight: 760 !important;
+  letter-spacing: -0.045em !important;
+  font-size: 25px !important;
+  line-height: 1 !important;
+}
+
+.home-premium-globe {
+  color: #bf8f2d !important;
+}
+
+.home-premium-app-btn {
+  background: #fff8e7 !important;
+  color: #9a6a10 !important;
+  border-color: #f2dfb6 !important;
+  font-weight: 720 !important;
+}
+
+@keyframes luvenLogoFloat {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 12px 26px rgba(15, 31, 54, 0.16), inset 0 0 0 1px rgba(255,255,255,.06);
+  }
+  50% {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 30px rgba(15, 31, 54, 0.20), 0 0 22px rgba(245, 199, 107, 0.16), inset 0 0 0 1px rgba(255,255,255,.08);
+  }
+}
+
+.home-premium-banner {
+  position: relative !important;
+  height: clamp(150px, 38vw, 190px) !important;
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  margin-bottom: 16px !important;
+  background: #0f1f36 !important;
+  box-shadow: 0 18px 38px rgba(15, 31, 54, 0.14) !important;
+}
+
+.home-premium-banner img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  opacity: 0 !important;
+  transform: scale(1.035) !important;
+  transition: opacity .75s ease, transform 4.6s ease !important;
+}
+
+.home-premium-banner img.active {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
+.home-premium-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(12, 24, 40, .68), rgba(12, 24, 40, .22) 54%, rgba(12, 24, 40, .05));
+  pointer-events: none;
+  z-index: 1;
+}
+
+.home-banner-overlay {
+  position: absolute;
+  z-index: 2;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  color: #ffffff;
+}
+
+.home-banner-pill {
+  min-height: 25px;
+  padding: 0 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  background: rgba(245, 199, 107, 0.18);
+  color: #f9d37b;
+  border: 1px solid rgba(245, 199, 107, 0.36);
+  font-size: 11px;
+  font-weight: 750;
+  margin-bottom: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.home-banner-overlay h2 {
+  color: #ffffff !important;
+  margin: 0 0 5px !important;
+  font-size: 22px !important;
+  font-weight: 780 !important;
+  letter-spacing: -0.045em;
+}
+
+.home-banner-overlay p {
+  color: rgba(239, 246, 255, .86) !important;
+  margin: 0 !important;
+  max-width: 290px;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}
+
+.home-banner-dots {
+  position: absolute;
+  z-index: 3;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.home-banner-dots button {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: none;
+  padding: 0;
+  background: rgba(255,255,255,.45);
+  transition: .25s ease;
+}
+
+.home-banner-dots button.active {
+  width: 20px;
+  background: #f5c76b;
+}
+
+.home-premium-actions {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 13px !important;
+  margin: 16px 0 !important;
+}
+
+.home-premium-actions .home-action-card {
+  min-height: 96px !important;
+  border-radius: 22px !important;
+  border: none !important;
+  box-shadow: 0 14px 26px rgba(30, 62, 98, 0.12) !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 780 !important;
+  letter-spacing: -0.02em !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-premium-actions .home-action-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(255,255,255,.22), transparent 42%);
+  pointer-events: none;
+}
+
+.home-action-recharge {
+  background: #12b886 !important;
+}
+
+.home-action-withdraw {
+  background: #f59f3d !important;
+}
+
+.home-action-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,.20);
+  color: #ffffff;
+  font-size: 18px;
+  margin-bottom: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+.home-premium-actions .home-action-card > span:last-child {
+  position: relative;
+  z-index: 1;
+}
+
+.home-premium-actions .home-action-card:active {
+  transform: scale(.985);
+}
+
+.home-premium-status {
+  border-radius: 22px !important;
+}
+
+@media (max-width: 390px) {
+  .home-premium-banner {
+    height: 150px !important;
+  }
+
+  .home-banner-overlay h2 {
+    font-size: 20px !important;
+  }
+
+  .home-banner-overlay p {
+    max-width: 235px;
+    font-size: 11px !important;
+  }
+
+  .home-premium-actions .home-action-card {
+    min-height: 90px !important;
+  }
+}
+
+
+/* =========================================================
+   HOME - BANNER PEQUEÑO DE INVITACIÓN
+========================================================= */
+
+.home-invite-banner {
+  width: 100%;
+  min-height: 82px;
+  margin: 2px 0 16px;
+  padding: 14px 15px;
+  border: none;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255,255,255,.55), transparent 24%),
+    radial-gradient(circle at 88% 18%, rgba(245,199,107,.28), transparent 30%),
+    linear-gradient(135deg, #18b989 0%, #2dd4bf 42%, #f5c76b 100%);
+  color: #ffffff;
+  box-shadow: 0 14px 30px rgba(24, 185, 137, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  overflow: hidden;
+  position: relative;
+  text-align: left;
+  cursor: pointer;
+}
+
+.home-invite-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(9, 46, 42, .18), rgba(9, 46, 42, 0)),
+    repeating-linear-gradient(
+      -18deg,
+      rgba(255,255,255,.08) 0,
+      rgba(255,255,255,.08) 1px,
+      transparent 1px,
+      transparent 14px
+    );
+  pointer-events: none;
+}
+
+.home-invite-content,
+.home-invite-cta {
+  position: relative;
+  z-index: 1;
+}
+
+.home-invite-content {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.home-invite-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,.22);
+  color: #ffffff;
+  font-size: 19px;
+  backdrop-filter: blur(8px);
+}
+
+.home-invite-content h3 {
+  margin: 0 0 3px !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 760 !important;
+  letter-spacing: -0.035em;
+}
+
+.home-invite-content p {
+  margin: 0 !important;
+  max-width: 235px;
+  color: rgba(255,255,255,.88) !important;
+  font-size: 11.5px !important;
+  line-height: 1.25 !important;
+  font-weight: 520;
+}
+
+.home-invite-cta {
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.92);
+  color: #0e987d;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 760;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px rgba(15, 31, 54, 0.10);
+}
+
+.home-invite-cta svg {
+  width: 14px;
+  height: 14px;
+}
+
+.home-invite-banner:active {
+  transform: scale(.99);
+}
+
+@media (max-width: 390px) {
+  .home-invite-banner {
+    min-height: 78px;
+    padding: 13px;
+  }
+
+  .home-invite-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+
+  .home-invite-content h3 {
+    font-size: 15px !important;
+  }
+
+  .home-invite-content p {
+    max-width: 190px;
+    font-size: 10.8px !important;
+  }
+
+  .home-invite-cta {
+    min-height: 32px;
+    padding: 0 9px;
+    font-size: 11px;
+  }
+}
+
+
+/* =========================================================
+   HOME - BANNER AUMENTA TUS INGRESOS
+========================================================= */
+
+.home-income-banner {
+  width: 100%;
+  min-height: 78px;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 18% 10%, rgba(255,255,255,.42), transparent 24%),
+    linear-gradient(135deg, #f16cae 0%, #c077ff 62%, #9b74f6 100%);
+  color: #ffffff;
+  box-shadow: 0 14px 30px rgba(192, 119, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  overflow: hidden;
+  position: relative;
+  text-align: left;
+  cursor: pointer;
+}
+
+.home-income-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 88% 70%, rgba(255,255,255,.22), transparent 26%),
+    linear-gradient(90deg, rgba(255,255,255,.10), transparent 62%);
+  pointer-events: none;
+}
+
+.home-income-content,
+.home-income-cta {
+  position: relative;
+  z-index: 1;
+}
+
+.home-income-content {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.home-income-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,.20);
+  color: #ffffff;
+  font-size: 18px;
+  backdrop-filter: blur(8px);
+}
+
+.home-income-content h3 {
+  margin: 0 0 3px !important;
+  color: #ffffff !important;
+  font-size: 16px !important;
+  font-weight: 780 !important;
+  letter-spacing: -0.035em;
+}
+
+.home-income-content p {
+  margin: 0 !important;
+  max-width: 220px;
+  color: rgba(255,255,255,.9) !important;
+  font-size: 11.5px !important;
+  line-height: 1.25 !important;
+  font-weight: 530;
+}
+
+.home-income-cta {
+  min-height: 34px;
+  padding: 0 13px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.94);
+  color: #e458a0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 780;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px rgba(15, 31, 54, 0.10);
+}
+
+.home-income-banner:active {
+  transform: scale(.99);
+}
+
+@media (max-width: 390px) {
+  .home-income-banner {
+    min-height: 76px;
+    padding: 13px;
+  }
+
+  .home-income-icon {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
+
+  .home-income-content h3 {
+    font-size: 15px !important;
+  }
+
+  .home-income-content p {
+    max-width: 180px;
+    font-size: 10.7px !important;
+  }
+
+  .home-income-cta {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 11px;
+  }
+}
+
+
+/* =========================================================
+   HOME - TICKER DE ACTIVIDAD REAL ANONIMIZADA
+   Lee /api/public/recent-recharges si existe.
+========================================================= */
+
+.home-activity-ticker {
+  width: 100%;
+  min-height: 36px;
+  margin: -2px 0 14px;
+  padding: 0 12px;
+  border-radius: 14px;
+  background: #fff2f6;
+  border: 1px solid #ffd4e2;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  overflow: hidden;
+  color: #f0629f;
+  box-shadow: 0 8px 18px rgba(240, 98, 159, 0.08);
+}
+
+.home-activity-speaker {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.75);
+  color: #f0629f;
+}
+
+.home-activity-speaker svg {
+  width: 13px;
+  height: 13px;
+}
+
+.home-activity-track {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.home-activity-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  animation: luvenTickerMove 22s linear infinite;
+}
+
+.home-activity-item {
+  display: inline-flex;
+  align-items: center;
+  color: #7f8aa0;
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.home-activity-item::before {
+  content: "•";
+  color: #f0629f;
+  margin-right: 8px;
+}
+
+.home-activity-item:nth-child(2n) {
+  color: #2bb8d2;
+}
+
+.home-activity-item:nth-child(3n) {
+  color: #f0629f;
+}
+
+@keyframes luvenTickerMove {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.home-activity-ticker:hover .home-activity-content {
+  animation-play-state: paused;
+}
+
+@media (max-width: 390px) {
+  .home-activity-ticker {
+    min-height: 34px;
+    border-radius: 13px;
+    padding: 0 10px;
+  }
+
+  .home-activity-content {
+    gap: 14px;
+    animation-duration: 20s;
+  }
+
+  .home-activity-item {
+    font-size: 10.8px;
+  }
+}
+
+
+/* =========================================================
+   HOME - TICKER DE COMUNIDAD DESDE JSON FRONT-ONLY
+   Fuente: public/data/activityMessages.json
+========================================================= */
+
+.home-activity-ticker {
+  background: #fff2f8 !important;
+  border-color: #ffd2e7 !important;
+}
+
+.home-activity-item {
+  color: #7f8aa0 !important;
+}
+
+.home-activity-item:nth-child(2n) {
+  color: #2bb8d2 !important;
+}
+
+.home-activity-item:nth-child(3n) {
+  color: #f0629f !important;
+}
+
+
+/* =========================================================
+   HOME - TABLA VIP PREMIUM
+   Reemplaza el bloque de "Resumen / Actividad de plataforma"
+========================================================= */
+
+.home-vip-table-panel {
+  border-radius: 22px !important;
+  padding: 16px !important;
+  overflow: hidden;
+}
+
+.home-vip-header {
+  margin-bottom: 13px !important;
+}
+
+.home-vip-see-all {
+  border: 1px solid #cfe0ff !important;
+  background: #f3f8ff !important;
+  color: #2f7df6 !important;
+  font-weight: 750 !important;
+  cursor: pointer;
+}
+
+.home-vip-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.home-vip-table {
+  min-width: 100%;
+  display: grid;
+  gap: 7px;
+}
+
+.home-vip-table-row {
+  display: grid;
+  grid-template-columns: 0.8fr 1.15fr 1.15fr 0.7fr;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 15px;
+  background: #f7fbff;
+  border: 1px solid #dbe8f5;
+}
+
+.home-vip-table-head {
+  min-height: 34px;
+  background: #101f36;
+  border-color: #101f36;
+  color: rgba(255,255,255,.78);
+  font-size: 10.5px;
+  font-weight: 760;
+  text-transform: uppercase;
+  letter-spacing: .055em;
+}
+
+.home-vip-table-row:not(.home-vip-table-head) span {
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--text, #0f1f36);
+}
+
+.home-vip-name,
+.home-vip-price,
+.home-vip-daily,
+.home-vip-days {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.home-vip-name {
+  font-weight: 780 !important;
+  color: #7c5cf6 !important;
+}
+
+.home-vip-name svg {
+  color: #8b72f6;
+}
+
+.home-vip-price svg {
+  color: #bf8f2d;
+}
+
+.home-vip-daily {
+  color: #0f9f7a !important;
+}
+
+.home-vip-daily svg {
+  color: #12b886;
+}
+
+.home-vip-days {
+  color: #526982 !important;
+}
+
+.home-vip-days svg {
+  color: #8da0b7;
+}
+
+.home-vip-table-row svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+}
+
+.home-vip-note {
+  margin: 10px 2px 0 !important;
+  color: var(--text-soft, #526982) !important;
+  font-size: 10.8px !important;
+  line-height: 1.35 !important;
+}
+
+@media (max-width: 390px) {
+  .home-vip-table-panel {
+    padding: 14px !important;
+  }
+
+  .home-vip-table-row {
+    grid-template-columns: 0.72fr 1.1fr 1.1fr 0.65fr;
+    gap: 6px;
+    padding: 8px 8px;
+  }
+
+  .home-vip-table-row:not(.home-vip-table-head) span {
+    font-size: 10.6px;
+  }
+
+  .home-vip-table-head {
+    font-size: 9.8px;
+  }
+}
+
+
+/* =========================================================
+   TAREAS - ORDENADO / COMPACTO / PREMIUM MODERADO
+   Aplicado sobre src_frontend_0305_0525
+========================================================= */
+
+.tasks-clean-page {
+  min-height: 100vh !important;
+  max-width: 430px !important;
+  margin: 0 auto !important;
+  padding: 26px 16px 104px !important;
+  background: var(--page-bg, #eef6fb) !important;
+  color: var(--text, #0f1f36) !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.tasks-clean-header {
+  position: relative !important;
+  min-height: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 16px !important;
+}
+
+.tasks-clean-logo {
+  position: absolute !important;
+  left: 0 !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 15px !important;
+  background: linear-gradient(145deg, #112238, #1a2f49) !important;
+  border: 1px solid rgba(245, 199, 107, 0.34) !important;
+  box-shadow: 0 10px 20px rgba(15, 31, 54, 0.13) !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+}
+
+.tasks-clean-logo img {
+  width: 78% !important;
+  height: 78% !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+.tasks-clean-title {
+  margin: 0 !important;
+  color: var(--text, #0f1f36) !important;
+  font-size: 23px !important;
+  font-weight: 760 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1 !important;
+}
+
+.tasks-clean-card {
+  padding: 16px !important;
+  border-radius: 22px !important;
+  background: var(--surface, #ffffff) !important;
+  border: 1px solid var(--line, #d9e5f2) !important;
+  box-shadow: 0 16px 32px rgba(30, 62, 98, 0.055) !important;
+}
+
+.tasks-clean-top {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 15px !important;
+  padding: 0 4px !important;
+}
+
+.tasks-clean-balance {
+  padding-left: 8px !important;
+}
+
+.tasks-clean-balance span {
+  display: block !important;
+  color: var(--text-soft, #526982) !important;
+  font-size: 12px !important;
+  font-weight: 560 !important;
+  margin-bottom: 4px !important;
+}
+
+.tasks-clean-balance strong {
+  display: block !important;
+  color: var(--text, #0f1f36) !important;
+  font-size: 21px !important;
+  line-height: 1 !important;
+  font-weight: 760 !important;
+  letter-spacing: -0.035em !important;
+}
+
+.tasks-clean-recharge {
+  min-width: 108px !important;
+  height: 40px !important;
+  padding: 0 18px !important;
+  border: none !important;
+  border-radius: 999px !important;
+  background: #55cfc0 !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: 760 !important;
+  box-shadow: 0 10px 20px rgba(85, 207, 192, 0.22) !important;
+  cursor: pointer !important;
+}
+
+.tasks-clean-stats {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+  margin: 8px 0 14px !important;
+}
+
+.tasks-clean-stats > div {
+  text-align: center !important;
+  padding: 8px 4px !important;
+  border-radius: 14px !important;
+  background: #f8fbff !important;
+  border: 1px solid #e0ebf5 !important;
+}
+
+.tasks-clean-stats strong {
+  display: block !important;
+  color: var(--text, #0f1f36) !important;
+  font-size: 19px !important;
+  line-height: 1 !important;
+  font-weight: 760 !important;
+  margin-bottom: 5px !important;
+}
+
+.tasks-clean-stats span {
+  display: block !important;
+  color: var(--text-soft, #526982) !important;
+  font-size: 11.5px !important;
+  font-weight: 560 !important;
+}
+
+.tasks-clean-countdown {
+  text-align: center !important;
+  margin: 12px 0 15px !important;
+  padding: 12px !important;
+  border-radius: 18px !important;
+  background: #f8fbff !important;
+  border: 1px solid #e0ebf5 !important;
+}
+
+.tasks-clean-countdown strong {
+  display: block !important;
+  color: var(--text, #0f1f36) !important;
+  font-size: 23px !important;
+  line-height: 1 !important;
+  font-weight: 760 !important;
+  letter-spacing: -0.04em !important;
+  margin-bottom: 7px !important;
+}
+
+.tasks-clean-countdown span {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  color: var(--text-soft, #526982) !important;
+  font-size: 11.5px !important;
+  font-weight: 560 !important;
+}
+
+.tasks-clean-countdown svg {
+  width: 13px !important;
+  height: 13px !important;
+  color: var(--primary-strong, #27a99a) !important;
+}
+
+.tasks-clean-tabs {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  overflow: hidden !important;
+  border: 1px solid #d4e2ef !important;
+  border-radius: 16px 16px 0 0 !important;
+}
+
+.tasks-clean-tab {
+  height: 42px !important;
+  border: none !important;
+  background: #ffffff !important;
+  color: #4d6381 !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+}
+
+.tasks-clean-tab + .tasks-clean-tab {
+  border-left: 1px solid #d4e2ef !important;
+}
+
+.tasks-clean-tab.active {
+  background: #d8f4ef !important;
+  color: #169d8d !important;
+}
+
+.tasks-clean-list {
+  min-height: 170px !important;
+  padding: 13px !important;
+  border: 1px solid #d4e2ef !important;
+  border-top: none !important;
+  border-radius: 0 0 16px 16px !important;
+  background: #fbfdff !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 11px !important;
+}
+
+.tasks-clean-empty {
+  min-height: 136px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  color: var(--text-soft, #526982) !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  font-weight: 560 !important;
+  padding: 12px !important;
+}
+
+.tasks-clean-item {
+  background: #ffffff !important;
+  border: 1px solid #dce7f2 !important;
+  border-radius: 17px !important;
+  padding: 13px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  color: var(--text, #0f1f36) !important;
+}
+
+.tasks-clean-item h3 {
+  margin: 0 0 6px !important;
+  color: var(--text, #0f1f36) !important;
+  font-size: 15px !important;
+  font-weight: 760 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.tasks-clean-item p {
+  margin: 0 !important;
+  color: var(--text-soft, #526982) !important;
+  font-size: 12px !important;
+  font-weight: 560 !important;
+}
+
+.tasks-clean-item p strong {
+  color: var(--text, #0f1f36) !important;
+  font-weight: 760 !important;
+}
+
+.tasks-clean-complete-btn,
+.tasks-clean-completed {
+  min-width: 104px !important;
+  height: 36px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 13px !important;
+  font-size: 12.5px !important;
+  font-weight: 760 !important;
+  white-space: nowrap !important;
+}
+
+.tasks-clean-complete-btn {
+  border: none !important;
+  background: #55cfc0 !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+}
+
+.tasks-clean-complete-btn:disabled {
+  opacity: 0.65 !important;
+  cursor: wait !important;
+}
+
+.tasks-clean-completed {
+  background: #daf6ea !important;
+  color: #18a873 !important;
+  border: 1px solid #bbe9d3 !important;
+}
+
+.tasks-clean-toast {
+  bottom: 96px !important;
+}
+
+/* Evita que el bottom nav sobresalga en la pestaña tareas */
+.tasks-clean-page .bottom-nav,
+.tasks-clean-page nav.bottom-nav,
+.tasks-clean-page .bottom-nav-bar {
+  box-sizing: border-box !important;
+  max-width: 430px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 100% !important;
+}
+
+@media (max-width: 390px) {
+  .tasks-clean-page {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .tasks-clean-card {
+    padding: 14px !important;
+  }
+
+  .tasks-clean-balance strong {
+    font-size: 20px !important;
+  }
+
+  .tasks-clean-recharge {
+    min-width: 96px !important;
+    height: 38px !important;
+  }
+
+  .tasks-clean-item {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .tasks-clean-complete-btn,
+  .tasks-clean-completed {
+    width: 100% !important;
+  }
+}
+
+
+/* =========================================================
+   RETIRAR - COMPACTO Y PROFESIONAL
+========================================================= */
+
+.withdraw-compact-page {
+  padding-bottom: 112px !important;
+}
+
+.withdraw-compact-header {
+  margin-bottom: 14px !important;
+}
+
+.withdraw-balance-compact {
+  min-height: 116px !important;
+  padding: 22px 18px !important;
+  margin-bottom: 14px !important;
+  border-radius: 24px !important;
+}
+
+.withdraw-balance-compact p {
+  margin: 0 0 10px !important;
+  color: var(--primary-strong, #27a99a) !important;
+  font-size: 15px !important;
+  font-weight: 760 !important;
+}
+
+.withdraw-balance-inline {
+  display: inline-flex !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.withdraw-balance-inline strong {
+  color: #26aa9a !important;
+  font-size: 32px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.045em !important;
+}
+
+.withdraw-balance-inline span {
+  color: #8ca0b8 !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+}
+
+.withdraw-compact-page .withdraw-panel {
+  padding: 16px !important;
+  margin-bottom: 12px !important;
+  border-radius: 22px !important;
+}
+
+.withdraw-compact-page .withdraw-panel h3 {
+  margin-bottom: 12px !important;
+  font-size: 16px !important;
+  letter-spacing: -0.025em !important;
+}
+
+.withdraw-network-panel {
+  min-height: auto !important;
+}
+
+.withdraw-row-title {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+.withdraw-row-title h3 {
+  margin: 0 !important;
+}
+
+.withdraw-network-mini {
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  border-radius: 14px !important;
+  background: #d8f4ef !important;
+  border: 1px solid #aee8dd !important;
+  color: #18a391 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+}
+
+.bnb-mini-icon {
+  color: #e5ad29 !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+}
+
+.withdraw-compact-page .withdraw-input {
+  min-height: 48px !important;
+  border-radius: 15px !important;
+  font-size: 14px !important;
+}
+
+.withdraw-compact-page .withdraw-help {
+  margin: 8px 2px 0 !important;
+  color: var(--text-soft, #526982) !important;
+  font-size: 11.8px !important;
+  line-height: 1.35 !important;
+}
+
+.withdraw-amount-box {
+  margin-bottom: 0 !important;
+}
+
+.withdraw-amount-box button {
+  color: var(--primary-strong, #27a99a) !important;
+  font-weight: 780 !important;
+}
+
+.withdraw-amount-note strong {
+  color: var(--text, #0f1f36) !important;
+  font-weight: 800 !important;
+}
+
+.withdraw-compact-page .withdraw-info-grid {
+  display: none !important;
+}
+
+.withdraw-real-compact {
+  min-height: 50px !important;
+  padding: 0 16px !important;
+  margin: 2px 0 10px !important;
+  border-radius: 18px !important;
+}
+
+.withdraw-real-compact span {
+  font-size: 13px !important;
+}
+
+.withdraw-real-compact strong {
+  font-size: 14px !important;
+}
+
+.withdraw-small-note {
+  margin: 0 2px 14px !important;
+  color: var(--text-soft, #526982) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  font-size: 12.2px !important;
+  font-weight: 600 !important;
+}
+
+.withdraw-small-note svg {
+  width: 14px !important;
+  height: 14px !important;
+  color: var(--primary-strong, #27a99a) !important;
+}
+
+.withdraw-confirm-compact {
+  margin-top: 0 !important;
+  margin-bottom: 14px !important;
+}
+
+.withdraw-mini-reminder {
+  padding: 14px 15px !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  border: 1px solid var(--line, #d9e5f2) !important;
+  color: var(--text-soft, #526982) !important;
+  font-size: 12.5px !important;
+  line-height: 1.55 !important;
+}
+
+.withdraw-mini-reminder strong {
+  color: var(--text, #0f1f36) !important;
+}
+
+@media (max-width: 390px) {
+  .withdraw-balance-inline strong {
+    font-size: 29px !important;
+  }
+
+  .withdraw-row-title {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .withdraw-network-mini {
+    align-self: flex-start !important;
+  }
+}
+
+
+/* =========================================================
+   RETIRAR - AJUSTE FINO V2
+   Títulos más moderados, monto menos grande y sin scrollbar visible
+========================================================= */
+
+/* Oculta la barra visual, pero mantiene el scroll funcional */
+html,
+body,
+#root {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+/* Evita cualquier scroll horizontal raro */
+body {
+  overflow-x: hidden !important;
+}
+
+/* Header más compacto */
+.withdraw-compact-header h2 {
+  font-size: 22px !important;
+  line-height: 1 !important;
+}
+
+.withdraw-compact-header .eyebrow {
+  font-size: 10.5px !important;
+  letter-spacing: .08em !important;
+}
+
+/* Tarjeta de saldo más equilibrada */
+.withdraw-balance-compact {
+  min-height: 104px !important;
+  padding: 18px 16px !important;
+}
+
+.withdraw-balance-compact p {
+  font-size: 14px !important;
+  margin-bottom: 9px !important;
+}
+
+.withdraw-balance-inline strong {
+  font-size: 27px !important;
+  letter-spacing: -0.035em !important;
+}
+
+.withdraw-balance-inline span {
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+/* Títulos de bloques más suaves */
+.withdraw-compact-page .withdraw-panel h3,
+.withdraw-row-title h3 {
+  font-size: 15px !important;
+  line-height: 1.15 !important;
+  margin-bottom: 10px !important;
+  font-weight: 760 !important;
+}
+
+/* Paneles un poco menos altos */
+.withdraw-compact-page .withdraw-panel {
+  padding: 14px 15px !important;
+  margin-bottom: 11px !important;
+}
+
+/* Red principal más discreta */
+.withdraw-network-mini {
+  min-height: 32px !important;
+  padding: 0 11px !important;
+  font-size: 12px !important;
+  border-radius: 13px !important;
+}
+
+/* Inputs y notas con tamaño moderado */
+.withdraw-compact-page .withdraw-input {
+  min-height: 45px !important;
+  font-size: 13px !important;
+}
+
+.withdraw-compact-page .withdraw-help,
+.withdraw-amount-note {
+  font-size: 11.2px !important;
+}
+
+/* Llegada real más limpia */
+.withdraw-real-compact {
+  min-height: 46px !important;
+  margin-bottom: 8px !important;
+}
+
+.withdraw-real-compact span,
+.withdraw-real-compact strong {
+  font-size: 12.5px !important;
+}
+
+/* Nota de 24 horas más pequeña */
+.withdraw-small-note {
+  font-size: 11.5px !important;
+  margin-bottom: 12px !important;
+}
+
+/* Botón confirmar mantiene presencia sin agrandar demasiado */
+.withdraw-confirm-compact {
+  min-height: 50px !important;
+  font-size: 16px !important;
+  border-radius: 17px !important;
+}
+
+/* Recordatorio final más compacto */
+.withdraw-mini-reminder {
+  padding: 12px 14px !important;
+  font-size: 11.8px !important;
+  line-height: 1.45 !important;
+}
+
+
+/* =========================================================
+   FIX GLOBAL - OCULTAR BARRAS DE SCROLL VISUALES
+   Mantiene el desplazamiento funcionando, solo oculta la barra.
+========================================================= */
+
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+html,
+body,
+#root,
+.app-bg,
+.phone-frame,
+.screen-content,
+.page,
+.withdraw-page,
+.withdraw-compact-page {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar,
+.app-bg::-webkit-scrollbar,
+.phone-frame::-webkit-scrollbar,
+.screen-content::-webkit-scrollbar,
+.page::-webkit-scrollbar,
+.withdraw-page::-webkit-scrollbar,
+.withdraw-compact-page::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+body {
+  overflow-x: hidden !important;
+}
+
+
+/* =========================================================
+   RECARGA - REFINADA / PROFESIONAL
+========================================================= */
+
+.recharge-pro-page {
+  padding-bottom: 112px !important;
+}
+
+.recharge-pro-header {
+  margin-bottom: 14px !important;
+}
+
+.recharge-pro-header h2 {
+  font-size: 22px !important;
+  line-height: 1.05 !important;
+}
+
+.recharge-pro-header .eyebrow {
+  font-size: 10.5px !important;
+  letter-spacing: .08em !important;
+}
+
+.recharge-loading-card {
+  padding: 20px !important;
+  border-radius: 24px !important;
+}
+
+.recharge-loading-card p {
+  margin: 0 !important;
+  color: var(--text-soft, #526982) !important;
+}
+
+.recharge-pro-panel {
+  padding: 16px !important;
+  margin-bottom: 14px !important;
+  border-radius: 24px !important;
+}
+
+.recharge-pro-panel h3 {
+  margin: 0 !important;
+  font-size: 15px !important;
+  line-height: 1.2 !important;
+  font-weight: 780 !important;
+}
+
+.recharge-network-pro {
+  padding-bottom: 14px !important;
+}
+
+.recharge-network-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 12px !important;
+}
+
+.recharge-token-badges {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.token-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 28px !important;
+  padding: 0 9px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  border: 1px solid var(--line, #d9e5f2) !important;
+  background: #fff !important;
+}
+
+.token-bnb {
+  color: #be8b15 !important;
+  background: #fff6db !important;
+  border-color: #f0d588 !important;
+}
+
+.token-usdt {
+  color: #1aa178 !important;
+  background: #def7ef !important;
+  border-color: #aee8d8 !important;
+}
+
+.token-mini-icon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+.token-mini-bnb {
+  color: #dd9d15 !important;
+}
+
+.token-mini-usdt {
+  color: #15a579 !important;
+  font-weight: 900 !important;
+}
+
+.network-chip-pro {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 38px !important;
+  padding: 0 14px !important;
+  border-radius: 14px !important;
+  background: #edf5ff !important;
+  border: 1px solid #c5dafc !important;
+  color: #2d74ff !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  margin-bottom: 14px !important;
+}
+
+.network-chip-dot {
+  color: #e6ac22 !important;
+  font-size: 13px !important;
+}
+
+.qr-shell-pro {
+  padding: 14px !important;
+  border-radius: 18px !important;
+  border: 1px solid var(--line, #d9e5f2) !important;
+  background: #f6f9fd !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.qr-card-pro {
+  width: 210px !important;
+  height: 210px !important;
+  border-radius: 22px !important;
+  background: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 10px 24px rgba(33, 53, 85, 0.05) !important;
+}
+
+.recharge-title-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 12px !important;
+}
+
+.wallet-badge-pro {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 28px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  background: #eef3ff !important;
+  border: 1px solid #c9dafc !important;
+  color: #4579f8 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+}
+
+.address-row-pro {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 12px !important;
+  border: 1px solid var(--line, #d9e5f2) !important;
+  border-radius: 16px !important;
+  background: #f7fafd !important;
+}
+
+.address-value-pro {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  color: var(--text, #0f1f36) !important;
+  font-size: 12.6px !important;
+  line-height: 1.4 !important;
+  word-break: break-all !important;
+}
+
+.copy-btn-pro {
+  flex: 0 0 auto !important;
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  border-radius: 12px !important;
+  border: 1px solid #aee8dd !important;
+  background: #dff6f1 !important;
+  color: #1aa694 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  transition: .2s ease !important;
+}
+
+.copy-btn-pro:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 8px 18px rgba(38, 170, 154, .10) !important;
+}
+
+.copy-btn-pro svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.recharge-main-pro-btn {
+  margin: 14px 0 16px !important;
+}
+
+.friendly-note-pro {
+  padding: 18px 16px !important;
+  border-radius: 24px !important;
+}
+
+.friendly-note-pro .friendly-title {
+  margin-bottom: 10px !important;
+}
+
+.friendly-note-pro .friendly-list {
+  margin: 0 !important;
+  padding-left: 18px !important;
+}
+
+.friendly-note-pro .friendly-list li {
+  margin-bottom: 10px !important;
+  color: var(--text-soft, #526982) !important;
+  font-size: 13px !important;
+  line-height: 1.7 !important;
+}
+
+.friendly-note-pro .friendly-list li:last-child {
+  margin-bottom: 0 !important;
+}
+
+.friendly-note-pro strong {
+  color: var(--text, #0f1f36) !important;
+}
+
+@media (max-width: 420px) {
+  .recharge-network-head {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  .address-row-pro {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  .copy-btn-pro {
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  .qr-card-pro {
+    width: 196px !important;
+    height: 196px !important;
+  }
+}
+
+
+/* =========================================================
+   RECARGA - FIX DIRECCIÓN / QR VACÍO
+========================================================= */
+
+.qr-empty-state {
+  width: 190px !important;
+  height: 190px !important;
+  border-radius: 18px !important;
+  background: #f6f9fd !important;
+  border: 1px dashed #cfe0ee !important;
+  color: var(--text-soft, #526982) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+
+.copy-btn-pro:disabled {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+
+/* =========================================================
+   RECARGA - TOAST DE ESTADO / PROCESAMIENTO
+========================================================= */
+
+.luven-toast {
+  position: fixed !important;
+  top: 22px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: calc(100% - 42px) !important;
+  max-width: 390px !important;
+  z-index: 9999 !important;
+  padding: 14px 16px !important;
+  border-radius: 18px !important;
+  color: #ffffff !important;
+  text-align: center !important;
+  font-size: 13.5px !important;
+  line-height: 1.35 !important;
+  font-weight: 760 !important;
+  box-shadow: 0 18px 36px rgba(15, 31, 54, 0.22) !important;
+  border: 1px solid rgba(255,255,255,.15) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+.luven-toast-info {
+  background: rgba(15, 31, 54, 0.96) !important;
+}
+
+.luven-toast-success {
+  background: rgba(22, 163, 116, 0.96) !important;
+}
+
+.luven-toast-warning {
+  background: rgba(204, 139, 28, 0.96) !important;
+}
+
+.luven-toast-error {
+  background: rgba(210, 70, 78, 0.96) !important;
+}
+
+.recharge-error-inline {
+  margin-bottom: 12px !important;
+  border-radius: 18px !important;
+  font-size: 12.5px !important;
+  line-height: 1.45 !important;
+}
+
+
+/* =========================================================
+   RECARGA - TOAST NEUTRO PROFESIONAL V2
+   Colores claros, suaves y consistentes con la plataforma.
+========================================================= */
+
+.luven-toast {
+  top: 24px !important;
+  width: calc(100% - 56px) !important;
+  max-width: 380px !important;
+  padding: 13px 16px !important;
+  border-radius: 18px !important;
+  color: #102033 !important;
+  font-size: 13px !important;
+  font-weight: 760 !important;
+  line-height: 1.35 !important;
+  box-shadow: 0 16px 34px rgba(30, 62, 98, 0.14) !important;
+  backdrop-filter: blur(14px) !important;
+}
+
+/* Verificando */
+.luven-toast-info {
+  background: rgba(239, 246, 255, 0.96) !important;
+  border: 1px solid #cfe0f3 !important;
+  color: #24476d !important;
+}
+
+/* Procesado correctamente */
+.luven-toast-success {
+  background: rgba(225, 248, 243, 0.96) !important;
+  border: 1px solid #aee8dd !important;
+  color: #147c70 !important;
+}
+
+/* Ya procesado / no detectado */
+.luven-toast-warning {
+  background: rgba(255, 248, 230, 0.97) !important;
+  border: 1px solid #f1dca3 !important;
+  color: #8a6420 !important;
+}
+
+/* Error */
+.luven-toast-error {
+  background: rgba(255, 239, 241, 0.97) !important;
+  border: 1px solid #f4c4ca !important;
+  color: #a33a46 !important;
+}
+
+@media (max-width: 390px) {
+  .luven-toast {
+    width: calc(100% - 42px) !important;
+    top: 22px !important;
+    font-size: 12.5px !important;
+  }
+}
+
+
+/* =========================================================
+   TAREAS - FIX TOAST PEQUEÑO Y AUTO-CERRABLE
+   Evita heredar estilos globales de .toast-message.
+========================================================= */
+
+.tasks-clean-toast {
+  position: fixed !important;
+  top: 24px !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+
+  width: auto !important;
+  min-width: 220px !important;
+  max-width: calc(100% - 56px) !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+
+  padding: 12px 16px !important;
+  border-radius: 16px !important;
+  background: rgba(225, 248, 243, 0.98) !important;
+  border: 1px solid #aee8dd !important;
+  color: #147c70 !important;
+
+  display: block !important;
+  text-align: center !important;
+  font-size: 12.8px !important;
+  line-height: 1.35 !important;
+  font-weight: 760 !important;
+  box-shadow: 0 16px 34px rgba(30, 62, 98, 0.14) !important;
+  backdrop-filter: blur(12px) !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+
+@media (max-width: 390px) {
+  .tasks-clean-toast {
+    max-width: calc(100% - 42px) !important;
+    font-size: 12.3px !important;
+    top: 22px !important;
+  }
+}

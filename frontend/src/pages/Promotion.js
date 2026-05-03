@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   FiChevronRight,
   FiCopy,
-  FiGrid,
   FiLink,
   FiSearch,
   FiUsers,
@@ -84,13 +83,6 @@ export default function Promotion() {
           <h2>Promoción</h2>
         </div>
 
-        <button
-          className="promotion-qr-btn"
-          type="button"
-          onClick={() => navigate("/invite")}
-        >
-          QR <FiGrid />
-        </button>
       </div>
 
       <div className="promotion-stats-row promo-income-row">

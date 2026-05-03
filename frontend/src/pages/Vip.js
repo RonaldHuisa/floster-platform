@@ -118,20 +118,20 @@ export default function Vip() {
           <div className="eyebrow">Centro de miembros</div>
           <h2 className="page-title">Planes VIP</h2>
         </div>
-        <span className="soft-pill">365 días</span>
+        <span className="soft-pill">90 días</span>
       </div>
 
       <div className="vip-summary">
         <div className="vip-summary-item">
           <strong>{Number(data?.todayIncomeUsdt || 0).toFixed(2)}</strong>
-          <span>Ganancias hoy</span>
+          <span>Ganancias hoy ( USDT )</span>
         </div>
 
         <div className="vip-summary-divider" />
 
         <div className="vip-summary-item">
           <strong>{Number(data?.earningsBalanceUsdt || 0).toFixed(2)}</strong>
-          <span>Acumulado</span>
+          <span>Acumulado ( USDT )</span>
         </div>
       </div>
 

@@ -61,7 +61,9 @@ export default function Login() {
       </button>
 
       <div className="auth-logo-block">
-        <div className="auth-logo">BF</div>
+        <div className="auth-logo auth-logo-image">
+          <img src="/luven_favicon.ico" alt="Luven" />
+        </div>
         <h1>Bienvenido de vuelta</h1>
         <p>Accede a tu panel para gestionar tu cuenta.</p>
       </div>

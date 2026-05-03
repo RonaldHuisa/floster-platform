@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { FiArrowLeft, FiClock, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiArrowLeft, FiClock, FiEye, FiEyeOff, FiInfo } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import {
   createWithdrawRequest,
@@ -97,14 +97,14 @@ export default function Withdraw() {
   };
 
   return (
-    <div className="page withdraw-page">
+    <div className="page withdraw-page withdraw-compact-page">
       {toast && (
         <div className="success-toast">
           <strong>{toast}</strong>
         </div>
       )}
 
-      <div className="recharge-header">
+      <div className="recharge-header withdraw-compact-header">
         <button className="icon-btn" onClick={() => navigate("/home")}>
           <FiArrowLeft />
         </button>
@@ -123,20 +123,21 @@ export default function Withdraw() {
         </button>
       </div>
 
-      <div className="withdraw-balance-card">
+      <div className="withdraw-balance-card withdraw-balance-compact">
         <p>Disponible para retirar</p>
-        <h1>{Number(available || 0).toFixed(6)}</h1>
-        <span>USDT</span>
+        <div className="withdraw-balance-inline">
+          <strong>{Number(available || 0).toFixed(6)}</strong>
+          <span>USDT</span>
+        </div>
       </div>
 
-      <div className="panel withdraw-panel">
-        <h3>Red principal</h3>
-
-        <div className="withdraw-network-list">
-          <button className="withdraw-network active" type="button">
-            <span className="network-icon">◆</span>
-            BEP20-USDT
-          </button>
+      <div className="panel withdraw-panel withdraw-network-panel">
+        <div className="withdraw-row-title">
+          <h3>Red principal</h3>
+          <div className="withdraw-network-mini">
+            <span className="bnb-mini-icon">◆</span>
+            <strong>BEP20-USDT</strong>
+          </div>
         </div>
       </div>
 
@@ -177,16 +178,10 @@ export default function Withdraw() {
           </button>
         </div>
 
-        <div className="withdraw-info-grid">
-          <div>
-            <span>Mínimo</span>
-            <strong>{minWithdraw.toFixed(2)} USDT</strong>
-          </div>
-          <div>
-            <span>Comisión</span>
-            <strong>{feePercent}%</strong>
-          </div>
-        </div>
+        <p className="withdraw-help withdraw-amount-note">
+          Mínimo <strong>{minWithdraw.toFixed(2)} USDT</strong> · Comisión{" "}
+          <strong>{feePercent}%</strong>
+        </p>
       </div>
 
       <div className="panel withdraw-panel">
@@ -211,13 +206,18 @@ export default function Withdraw() {
         </div>
       </div>
 
-      <div className="withdraw-real-row">
+      <div className="withdraw-real-row withdraw-real-compact">
         <span>Llegada real</span>
         <strong>{realArrival.toFixed(6)} USDT</strong>
       </div>
 
+      <div className="withdraw-small-note">
+        <FiInfo />
+        Solo puedes solicitar 1 retiro cada 24 horas.
+      </div>
+
       <button
-        className="primary-btn recharge-main-btn"
+        className="primary-btn recharge-main-btn withdraw-confirm-compact"
         type="button"
         onClick={handleConfirm}
         disabled={loading || sending}
@@ -225,17 +225,9 @@ export default function Withdraw() {
         {sending ? "Procesando..." : "Confirmar retiro"}
       </button>
 
-      <div className="recharge-notes panel">
-        <div className="notes-title">
-          <span>⚠️</span>
-          <span>Recordatorio de retiro</span>
-        </div>
-
-        <p>
-          El monto mínimo para retirar por BEP20 es <strong>{minWithdraw} USDT</strong>.
-          La comisión de retiro es <strong>{feePercent}%</strong>. Solo se pueden retirar
-          las ganancias disponibles; el saldo de recarga/VIP no se considera retirable.
-        </p>
+      <div className="withdraw-mini-reminder">
+        <strong>Recordatorio:</strong> Solo se pueden retirar las ganancias disponibles;
+        el saldo de recarga/VIP no se considera retirable.
       </div>
     </div>
   );
