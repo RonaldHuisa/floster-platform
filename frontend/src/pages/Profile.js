@@ -19,7 +19,7 @@ import {
   logout,
 } from "../services/authService";
 
-const TELEGRAM_CHANNEL_URL = "https://t.me/+P3T_cCAuK1UzNmVh";
+const TELEGRAM_CHANNEL_URL = "https://t.me/LuvenVIP";
 const TELEGRAM_SUPPORT_URL = "https://t.me/LuvenSupport";
 
 function toNumber(value) {
