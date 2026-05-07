@@ -2,13 +2,44 @@ import React, { useEffect, useState } from "react";
 import { FiArrowLeft, FiDownload, FiUpload } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { getMyTransactions, getWithdrawInfo } from "../services/authService";
+import { useI18n } from "../i18n/I18nContext";
 
 function formatAmount(value) {
   return Number(value || 0).toFixed(6);
 }
 
+function translateTransactionTitle(title, t) {
+  const value = String(title || "");
+
+  if (value.startsWith("Ganancia de tarea")) {
+    return value.replace("Ganancia de tarea", t("Ganancia de tarea"));
+  }
+
+  if (value.startsWith("Task earning")) {
+    return value;
+  }
+
+  if (value.startsWith("Comisión de referido nivel")) {
+    return value.replace(
+      "Comisión de referido nivel",
+      t("Comisión de referido nivel")
+    );
+  }
+
+  if (value.startsWith("Comisión de referido")) {
+    return value.replace("Comisión de referido", t("Comisión de referido"));
+  }
+
+  if (value === "Deducción por retiro") {
+    return t("Deducción por retiro");
+  }
+
+  return t(value);
+}
+
 export default function Transactions() {
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,40 +76,40 @@ export default function Transactions() {
         </button>
 
         <div>
-          <div className="eyebrow">Historial</div>
-          <h2>Cartera flexible</h2>
+          <div className="eyebrow">{t("Historial")}</div>
+          <h2>{t("Cartera flexible")}</h2>
         </div>
 
         <div />
       </div>
 
       <div className="withdraw-balance-card">
-        <p>Disponible para retirar</p>
+        <p>{t("Disponible para retirar")}</p>
         <h1>{formatAmount(available)}</h1>
         <span>USDT</span>
 
         <div className="history-actions">
           <button onClick={() => navigate("/recharge")}>
-            <FiDownload /> Recargar
+            <FiDownload /> {t("Recargar")}
           </button>
           <button onClick={() => navigate("/withdraw")}>
-            <FiUpload /> Retirar
+            <FiUpload /> {t("Retirar")}
           </button>
         </div>
       </div>
 
       <div className="history-title-row">
         <div>
-          <div className="eyebrow">Movimientos</div>
-          <h3>Detalles del activo</h3>
+          <div className="eyebrow">{t("Movimientos")}</div>
+          <h3>{t("Detalles del activo")}</h3>
         </div>
-        <span className="soft-pill">Todo</span>
+        <span className="soft-pill">{t("Todo")}</span>
       </div>
 
-      {loading && <div className="panel">Cargando historial...</div>}
+      {loading && <div className="panel">{t("Cargando historial...")}</div>}
 
       {!loading && transactions.length === 0 && (
-        <div className="empty-history">No hay movimientos para mostrar.</div>
+        <div className="empty-history">{t("No hay movimientos para mostrar.")}</div>
       )}
 
       {!loading &&
@@ -95,7 +126,7 @@ export default function Transactions() {
           return (
             <div className="history-card" key={item.id}>
               <div>
-                <h4>{item.title}</h4>
+                <h4>{translateTransactionTitle(item.title, t)}</h4>
                 <p>{new Date(item.created_at).toLocaleString()}</p>
               </div>
 
@@ -108,7 +139,7 @@ export default function Transactions() {
         })}
 
       {!loading && transactions.length > 0 && (
-        <div className="empty-history">No más</div>
+        <div className="empty-history">{t("No más")}</div>
       )}
     </div>
   );

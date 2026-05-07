@@ -9262,3 +9262,168 @@ body {
     font-size: 22px !important;
   }
 }
+
+/* Luven PWA + language controls */
+.home-top-actions {
+  position: relative;
+}
+
+.home-premium-app-btn,
+.language-globe-btn {
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.home-premium-app-btn:hover,
+.language-globe-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.language-switcher {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.language-globe-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(202, 138, 4, 0.22);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.58);
+  color: #b77905;
+  padding: 0;
+}
+
+.language-menu {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  width: 164px;
+  padding: 10px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+  z-index: 40;
+  backdrop-filter: blur(12px);
+}
+
+.language-menu-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8aa0b7;
+  padding: 4px 8px 8px;
+}
+
+.language-menu button {
+  width: 100%;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 11px;
+  border-radius: 13px;
+  color: #10233b;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.language-menu button strong {
+  font-size: 11px;
+  color: #8aa0b7;
+}
+
+.language-menu button.active,
+.language-menu button:hover {
+  background: #ecfdf7;
+  color: #0f9f7a;
+}
+
+.language-menu button.active strong,
+.language-menu button:hover strong {
+  color: #0f9f7a;
+}
+
+.install-guide-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(15, 23, 42, 0.34);
+  backdrop-filter: blur(8px);
+}
+
+.install-guide-card {
+  width: min(330px, 100%);
+  position: relative;
+  border-radius: 28px;
+  padding: 24px;
+  background: #ffffff;
+  box-shadow: 0 26px 70px rgba(15, 23, 42, 0.24);
+  text-align: center;
+}
+
+.install-guide-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.install-guide-icon {
+  width: 58px;
+  height: 58px;
+  margin: 4px auto 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #ecfdf7, #e0f2fe);
+  color: #10b981;
+  font-size: 27px;
+}
+
+.install-guide-card h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  color: #10233b;
+}
+
+.install-guide-card p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.45;
+  font-size: 14px;
+}
+
+.install-guide-steps {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 18px;
+}
+
+.install-guide-steps span {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}

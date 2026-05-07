@@ -15,6 +15,8 @@ import {
   FiUsers,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { LANGUAGES, useI18n } from "../i18n/I18nContext";
+import useInstallPrompt from "../pwa/useInstallPrompt";
 
 const banners = [
   {
@@ -79,7 +81,7 @@ function getRandomItem(items) {
   return items[Math.floor(Math.random() * items.length)];
 }
 
-function buildRandomActivity(config = defaultActivityConfig, total = 12) {
+function buildRandomActivity(config = defaultActivityConfig, total = 12, translate = (value) => value) {
   const domains =
     config.domains && config.domains.length
       ? config.domains
@@ -98,7 +100,7 @@ function buildRandomActivity(config = defaultActivityConfig, total = 12) {
   return Array.from({ length: total }, () => {
     const prefix = getRandomItem(prefixes).slice(0, 2).toLowerCase();
     const domain = getRandomItem(domains);
-    const status = getRandomItem(statuses);
+    const status = translate(getRandomItem(statuses));
 
     return `${prefix}*******@${domain} ${status}`;
   });
@@ -113,9 +115,13 @@ function formatUsdt(value) {
 
 export default function Home() {
   const navigate = useNavigate();
+  const { language, setLanguage, t } = useI18n();
+  const { canInstall, isInstalled, promptInstall } = useInstallPrompt();
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
   const [activeBanner, setActiveBanner] = useState(0);
   const [tickerItems, setTickerItems] = useState(() =>
-    buildRandomActivity(defaultActivityConfig, 12)
+    buildRandomActivity(defaultActivityConfig, 12, t)
   );
 
   useEffect(() => {
@@ -126,9 +132,9 @@ export default function Home() {
           ? await response.json()
           : defaultActivityConfig;
 
-        setTickerItems(buildRandomActivity(config, 12));
+        setTickerItems(buildRandomActivity(config, 12, t));
       } catch (error) {
-        setTickerItems(buildRandomActivity(defaultActivityConfig, 12));
+        setTickerItems(buildRandomActivity(defaultActivityConfig, 12, t));
       }
     }
 
@@ -139,7 +145,7 @@ export default function Home() {
     }, 12000);
 
     return () => clearInterval(refresh);
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -148,6 +154,24 @@ export default function Home() {
 
     return () => clearInterval(timer);
   }, []);
+
+
+  const handleInstallApp = async () => {
+    if (isInstalled) {
+      setShowInstallGuide(true);
+      return;
+    }
+
+    const promptWasShown = await promptInstall();
+    if (!promptWasShown || !canInstall) {
+      setShowInstallGuide(true);
+    }
+  };
+
+  const handleLanguageSelect = (nextLanguage) => {
+    setLanguage(nextLanguage);
+    setShowLanguageMenu(false);
+  };
 
   return (
     <div className="page page-home home-premium-page">
@@ -158,17 +182,49 @@ export default function Home() {
           </div>
 
           <div>
-            <div className="eyebrow">Panel principal</div>
+            <div className="eyebrow">{t("Panel principal")}</div>
             <div className="brand-text home-luven-title">Luven</div>
           </div>
         </div>
 
-        <div className="top-actions">
-          <button className="app-mini-btn home-premium-app-btn" type="button">
+        <div className="top-actions home-top-actions">
+          <button
+            className="app-mini-btn home-premium-app-btn"
+            type="button"
+            onClick={handleInstallApp}
+            aria-label={t("Instalar aplicación")}
+          >
             <FiDownloadCloud />
-            <span>App</span>
+            <span>{t("App")}</span>
           </button>
-          <FiGlobe className="header-icon home-premium-globe" />
+
+          <div className="language-switcher">
+            <button
+              className="language-globe-btn"
+              type="button"
+              onClick={() => setShowLanguageMenu((value) => !value)}
+              aria-label={t("Cambiar idioma")}
+            >
+              <FiGlobe className="header-icon home-premium-globe" />
+            </button>
+
+            {showLanguageMenu && (
+              <div className="language-menu">
+                <div className="language-menu-title">{t("Idioma")}</div>
+                {Object.values(LANGUAGES).map((item) => (
+                  <button
+                    key={item.code}
+                    type="button"
+                    className={language === item.code ? "active" : ""}
+                    onClick={() => handleLanguageSelect(item.code)}
+                  >
+                    <span>{item.label}</span>
+                    <strong>{item.short}</strong>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -183,9 +239,9 @@ export default function Home() {
         ))}
 
         <div className="home-banner-overlay">
-          <span className="home-banner-pill">Premium</span>
-          <h2>{banners[activeBanner].title}</h2>
-          <p>{banners[activeBanner].subtitle}</p>
+          <span className="home-banner-pill">{t("Premium")}</span>
+          <h2>{t(banners[activeBanner].title)}</h2>
+          <p>{t(banners[activeBanner].subtitle)}</p>
         </div>
 
         <div className="home-banner-dots">
@@ -201,7 +257,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="home-activity-ticker" aria-label="Actividad reciente">
+      <div className="home-activity-ticker" aria-label={t("Actividad reciente")}>
         <span className="home-activity-speaker">
           <FiVolume2 />
         </span>
@@ -226,7 +282,7 @@ export default function Home() {
           <span className="home-action-icon">
             <FiRefreshCw />
           </span>
-          <span>Recargar</span>
+          <span>{t("Recargar")}</span>
         </button>
 
         <button
@@ -237,7 +293,7 @@ export default function Home() {
           <span className="home-action-icon">
             <FiLogOut />
           </span>
-          <span>Retirar</span>
+          <span>{t("Retirar")}</span>
         </button>
       </div>
 
@@ -252,13 +308,13 @@ export default function Home() {
           </span>
 
           <div>
-            <h3>Invitar y ganar</h3>
-            <p>Comparte tu enlace y aumenta tu red de referidos.</p>
+            <h3>{t("Invitar y ganar")}</h3>
+            <p>{t("Comparte tu enlace y aumenta tu red de referidos.")}</p>
           </div>
         </div>
 
         <span className="home-invite-cta">
-          Invitar ahora
+          {t("Invitar ahora")}
           <FiChevronRight />
         </span>
       </button>
@@ -274,19 +330,19 @@ export default function Home() {
           </span>
 
           <div>
-            <h3>Aumenta tus ingresos</h3>
-            <p>Sube de nivel para desbloquear misiones más avanzadas.</p>
+            <h3>{t("Aumenta tus ingresos")}</h3>
+            <p>{t("Sube de nivel para desbloquear misiones más avanzadas.")}</p>
           </div>
         </div>
 
-        <span className="home-income-cta">Desbloquear ahora</span>
+        <span className="home-income-cta">{t("Desbloquear ahora")}</span>
       </button>
 
       <section className="panel home-vip-table-panel">
         <div className="section-row home-vip-header">
           <div>
-            <div className="eyebrow">Planes disponibles</div>
-            <h3 className="section-title">Tabla VIP</h3>
+            <div className="eyebrow">{t("Planes disponibles")}</div>
+            <h3 className="section-title">{t("Tabla VIP")}</h3>
           </div>
 
           <button
@@ -294,7 +350,7 @@ export default function Home() {
             type="button"
             onClick={() => navigate("/vip")}
           >
-            Ver planes
+            {t("Ver planes")}
           </button>
         </div>
 
@@ -302,9 +358,9 @@ export default function Home() {
           <div className="home-vip-table">
             <div className="home-vip-table-row home-vip-table-head">
               <span>VIP</span>
-              <span>Precio</span>
-              <span>Diario</span>
-              <span>Días</span>
+              <span>{t("Precio")}</span>
+              <span>{t("Diario")}</span>
+              <span>{t("Días")}</span>
             </div>
 
             {vipPlans.map((plan) => (
@@ -334,18 +390,18 @@ export default function Home() {
         </div>
 
         <p className="home-vip-note">
-          Puedes tener varios VIP al mismo tiempo para maximizar ganancias.
+          {t("Puedes tener varios VIP al mismo tiempo para maximizar ganancias.")}
         </p>
       </section>
 
       <section className="panel home-ref-table-panel">
         <div className="section-row home-ref-header">
           <div>
-            <div className="eyebrow">Red de referidos</div>
-            <h3 className="section-title">Comisiones de referidos</h3>
+            <div className="eyebrow">{t("Red de referidos")}</div>
+            <h3 className="section-title">{t("Comisiones de referidos")}</h3>
           </div>
 
-          <span className="soft-pill home-ref-pill">3 niveles</span>
+          <span className="soft-pill home-ref-pill">{t("3 niveles")}</span>
         </div>
 
         <div className="home-ref-commission-grid">
@@ -359,8 +415,8 @@ export default function Home() {
                   <FiUsers />
                 </span>
                 <div>
-                  <strong>{item.level}</strong>
-                  <small>{item.description}</small>
+                  <strong>{t(item.level)}</strong>
+                  <small>{t(item.description)}</small>
                 </div>
               </div>
 
@@ -373,9 +429,40 @@ export default function Home() {
         </div>
 
         <p className="home-vip-note">
-          La comisión se calcula según la compra o recarga válida de tu red.
+          {t("La comisión se calcula según la compra o recarga válida de tu red.")}
         </p>
       </section>
+
+      {showInstallGuide && (
+        <div className="install-guide-overlay" role="dialog" aria-modal="true">
+          <div className="install-guide-card">
+            <button
+              className="install-guide-close"
+              type="button"
+              onClick={() => setShowInstallGuide(false)}
+              aria-label={t("Cerrar")}
+            >
+              ×
+            </button>
+
+            <div className="install-guide-icon">
+              <FiDownloadCloud />
+            </div>
+
+            <h3>{t("Instalar Luven")}</h3>
+            <p>{t("Si no aparece la instalación automática, agrega Luven a la pantalla de inicio desde el menú de tu navegador.")}</p>
+
+            <div className="install-guide-steps">
+              <span>{t("Android: menú ⋮ > Instalar app")}</span>
+              <span>{t("iPhone: compartir > Agregar a inicio")}</span>
+            </div>
+
+            <button className="primary-btn" type="button" onClick={() => setShowInstallGuide(false)}>
+              {t("Entendido")}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

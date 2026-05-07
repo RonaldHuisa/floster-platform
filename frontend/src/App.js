@@ -17,6 +17,9 @@ import AdminStatus from "./pages/AdminStatus";
 import MembersList from "./pages/MembersList";
 import Tasks from "./pages/Tasks";
 
+import { LanguageProvider } from "./i18n/I18nContext";
+import DomTranslator from "./i18n/DomTranslator";
+
 import "./App.css";
 
 function isAuthenticated() {
@@ -93,8 +96,11 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <LanguageProvider>
+      <BrowserRouter>
+        <DomTranslator />
+        <AppRoutes />
+      </BrowserRouter>
+    </LanguageProvider>
   );
 }

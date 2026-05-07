@@ -8,6 +8,7 @@ import {
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { getPromotionDashboard } from "../services/authService";
+import { useI18n } from "../i18n/I18nContext";
 
 function money(value) {
   return Number(value || 0).toFixed(2);
@@ -15,6 +16,7 @@ function money(value) {
 
 export default function Promotion() {
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const [data, setData] = useState(null);
   const [toast, setToast] = useState("");
@@ -50,7 +52,7 @@ export default function Promotion() {
   if (!data) {
     return (
       <div className="page promotion-page">
-        <div className="panel">Cargando promoción...</div>
+        <div className="panel">{t("Cargando promoción...")}</div>
       </div>
     );
   }
@@ -63,9 +65,9 @@ export default function Promotion() {
 
     try {
       await navigator.clipboard.writeText(data.referralLink);
-      showToast("Enlace copiado");
+      showToast(t("Enlace copiado."));
     } catch (error) {
-      showToast("No se pudo copiar el enlace");
+      showToast(t("No se pudo copiar el enlace."));
     }
   };
 
@@ -79,20 +81,20 @@ export default function Promotion() {
 
       <div className="promotion-header">
         <div>
-          <div className="eyebrow">Red de referidos</div>
-          <h2>Promoción</h2>
+          <div className="eyebrow">{t("Red de referidos")}</div>
+          <h2>{t("Promoción")}</h2>
         </div>
 
       </div>
 
       <div className="promotion-stats-row promo-income-row">
         <div className="promotion-stat-card promo-income-card">
-          <p>Ingresos totales</p>
+          <p>{t("Ingresos totales")}</p>
           <strong>{money(data.totalIncome)} USDT</strong>
         </div>
 
         <div className="promotion-stat-card promo-income-card">
-          <p>Ingresos de hoy</p>
+          <p>{t("Ingresos de hoy")}</p>
           <strong>{money(data.todayIncome)} USDT</strong>
         </div>
       </div>
@@ -100,7 +102,7 @@ export default function Promotion() {
       <div className="panel invite-mini-panel promotion-invite-panel">
         <div className="panel-title-row promo-link-title">
           <div className="promo-title-inline">
-            <h3>Enlace de invitación</h3>
+            <h3>{t("Enlace de invitación")}</h3>
             <span className="icon-badge sm tone-mint">
               <FiLink />
             </span>
@@ -110,7 +112,7 @@ export default function Promotion() {
         <div className="invite-link-row">
           <span>{data.referralLink}</span>
 
-          <button type="button" onClick={copyLink} aria-label="Copiar enlace">
+          <button type="button" onClick={copyLink} aria-label={t("Copiar enlace")}>
             <FiCopy />
           </button>
         </div>
@@ -122,25 +124,25 @@ export default function Promotion() {
             <FiUsers />
           </span>
           <div>
-            <strong>Resumen del equipo</strong>
-            <span>Datos generales de tu red</span>
+            <strong>{t("Resumen del equipo")}</strong>
+            <span>{t("Datos generales de tu red")}</span>
           </div>
         </div>
 
         <div className="promo-summary-grid three">
           <div className="mini-metric-card">
             <strong>{data.totalMembers}</strong>
-            <span>Miembros</span>
+            <span>{t("Miembros")}</span>
           </div>
 
           <div className="mini-metric-card">
             <strong>{money(data.totalTeamRecharge)}</strong>
-            <span>Recarga</span>
+            <span>{t("Recarga")}</span>
           </div>
 
           <div className="mini-metric-card accent">
             <strong>{data.todayAdded}</strong>
-            <span>Hoy</span>
+            <span>{t("Hoy")}</span>
           </div>
         </div>
       </div>
@@ -154,7 +156,7 @@ export default function Promotion() {
                   <FiUsers />
                 </span>
                 <div>
-                  <h3 className="level-team-pill">Equipo Nivel {level.level}</h3>
+                  <h3 className="level-team-pill">{t(`Equipo Nivel ${level.level}`)}</h3>
                 </div>
               </div>
 
@@ -163,7 +165,7 @@ export default function Promotion() {
                 onClick={() => navigate(`/members/${level.level}`)}
               >
                 <FiSearch />
-                <span>Miembros</span>
+                <span>{t("Miembros")}</span>
                 <FiChevronRight />
               </button>
             </div>
@@ -171,22 +173,22 @@ export default function Promotion() {
             <div className="level-grid level-grid-compact">
               <div>
                 <strong>{level.totalMembers}</strong>
-                <span>Total</span>
+                <span>{t("Total")}</span>
               </div>
 
               <div>
                 <strong>{level.activeMembers}</strong>
-                <span>Activos</span>
+                <span>{t("Activos")}</span>
               </div>
 
               <div>
                 <strong>{money(level.teamRecharge)}</strong>
-                <span>Recarga</span>
+                <span>{t("Recarga")}</span>
               </div>
 
               <div>
                 <strong>{money(level.totalCommission)}</strong>
-                <span>Comisión</span>
+                <span>{t("Comisión")}</span>
               </div>
             </div>
           </div>

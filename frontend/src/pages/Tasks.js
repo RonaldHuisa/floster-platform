@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiClock } from "react-icons/fi";
 import BottomNav from "../components/BottomNav";
 import { getTasksDashboard, completeVipTask } from "../services/authService";
+import { useI18n } from "../i18n/I18nContext";
 
 function formatCountdown(ms) {
   if (ms <= 0) return "00:00:00";
@@ -24,6 +25,7 @@ function formatAmount(value) {
 
 export default function Tasks() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const messageTimerRef = useRef(null);
 
   const [data, setData] = useState(null);
@@ -39,11 +41,11 @@ export default function Tasks() {
       const result = await getTasksDashboard();
       setData(result);
     } catch (error) {
-      setMessage(error.message || "Error al cargar tareas.");
+      setMessage(error.message || t("Error al cargar tareas."));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadTasks();
@@ -102,7 +104,7 @@ export default function Tasks() {
 
   const handleCompleteTask = async (taskId) => {
     if (!taskId) {
-      setMessage("Error: esta tarea no tiene ID válido.");
+      setMessage(t("Error: esta tarea no tiene ID válido."));
       return;
     }
 
@@ -112,14 +114,26 @@ export default function Tasks() {
 
       const result = await completeVipTask(taskId);
 
-      setMessage(result.message || "Tarea completada correctamente.");
+      setMessage(result.message || t("Tarea completada correctamente."));
       await loadTasks();
       setActiveTab("completed");
     } catch (error) {
-      setMessage(error.message || "Error al completar tarea.");
+      setMessage(error.message || t("Error al completar tarea."));
     } finally {
       setProcessingTaskId(null);
     }
+  };
+
+
+  const renderTaskTitle = (task) => {
+    const rawTitle = task.title || `Tarea VIP${task.vipLevel || task.level || ""}`;
+    const normalized = String(rawTitle || "").trim();
+
+    if (/^Tarea VIP/i.test(normalized)) {
+      return normalized.replace(/^Tarea/i, t("Tarea"));
+    }
+
+    return t(normalized);
   };
 
   const balance = formatAmount(data?.withdrawableBalanceUsdt ?? 0);
@@ -134,13 +148,13 @@ export default function Tasks() {
           <img src="/luven_favicon.ico" alt="Luven" />
         </div>
 
-        <h1 className="tasks-clean-title">Tareas</h1>
+        <h1 className="tasks-clean-title">{t("Tareas")}</h1>
       </div>
 
       <section className="panel tasks-clean-card">
         <div className="tasks-clean-top">
           <div className="tasks-clean-balance">
-            <span>Balance total</span>
+            <span>{t("Balance total")}</span>
             <strong>{balance}</strong>
           </div>
 
@@ -149,24 +163,24 @@ export default function Tasks() {
             className="tasks-clean-recharge"
             onClick={() => navigate("/recharge")}
           >
-            Recargar
+            {t("Recargar")}
           </button>
         </div>
 
         <div className="tasks-clean-stats">
           <div>
             <strong>{completed}</strong>
-            <span>Terminado</span>
+            <span>{t("Terminado")}</span>
           </div>
 
           <div>
             <strong>{total}</strong>
-            <span>Total</span>
+            <span>{t("Total")}</span>
           </div>
 
           <div>
             <strong>{pending}</strong>
-            <span>En curso</span>
+            <span>{t("En curso")}</span>
           </div>
         </div>
 
@@ -174,7 +188,7 @@ export default function Tasks() {
           <strong>{countdown}</strong>
           <span>
             <FiClock />
-            Reinicio diario: 2:00 PM (UTC)
+            {t("Reinicio diario: 2:00 PM (UTC)")}
           </span>
         </div>
 
@@ -186,7 +200,7 @@ export default function Tasks() {
             }`}
             onClick={() => setActiveTab("pending")}
           >
-            En curso
+            {t("En curso")}
           </button>
 
           <button
@@ -196,18 +210,18 @@ export default function Tasks() {
             }`}
             onClick={() => setActiveTab("completed")}
           >
-            Terminado
+            {t("Terminado")}
           </button>
         </div>
 
         <div className="tasks-clean-list">
-          {loading && <div className="tasks-clean-empty">Cargando tareas...</div>}
+          {loading && <div className="tasks-clean-empty">{t("Cargando tareas...")}</div>}
 
           {!loading && currentList.length === 0 && (
             <div className="tasks-clean-empty">
               {activeTab === "pending"
-                ? "No tienes tareas disponibles. Compra un VIP activo o espera el próximo reinicio."
-                : "Todavía no tienes tareas completadas en este reinicio."}
+                ? t("No tienes tareas disponibles. Compra un VIP activo o espera el próximo reinicio.")
+                : t("Todavía no tienes tareas completadas en este reinicio.")}
             </div>
           )}
 
@@ -226,12 +240,11 @@ export default function Tasks() {
                 >
                   <div>
                     <h3>
-                      {task.title ||
-                        `Tarea VIP${task.vipLevel || task.level || ""}`}
+                      {renderTaskTitle(task)}
                     </h3>
 
                     <p>
-                      Ganancia:{" "}
+                      {t("Ganancia:")}{" "}
                       <strong>
                         {formatAmount(task.rewardUsdt || task.reward_usdt)} USDT
                       </strong>
@@ -239,7 +252,7 @@ export default function Tasks() {
                   </div>
 
                   {task.status === "completed" ? (
-                    <span className="tasks-clean-completed">Completado</span>
+                    <span className="tasks-clean-completed">{t("Completado")}</span>
                   ) : (
                     <button
                       type="button"
@@ -247,7 +260,7 @@ export default function Tasks() {
                       disabled={!taskId || processingTaskId === taskId}
                       onClick={() => handleCompleteTask(taskId)}
                     >
-                      {processingTaskId === taskId ? "Procesando..." : "Completar"}
+                      {processingTaskId === taskId ? t("Procesando...") : t("Completar")}
                     </button>
                   )}
                 </article>

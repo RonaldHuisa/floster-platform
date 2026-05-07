@@ -18,6 +18,7 @@ import {
   getVipStatus,
   logout,
 } from "../services/authService";
+import { useI18n } from "../i18n/I18nContext";
 
 const TELEGRAM_CHANNEL_URL = "https://t.me/LuvenVIP";
 const TELEGRAM_SUPPORT_URL = "https://t.me/LuvenSupport";
@@ -50,6 +51,7 @@ async function copyText(text) {
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const [user] = useState(() => getUser());
   const [withdrawInfo, setWithdrawInfo] = useState(null);
@@ -91,14 +93,14 @@ export default function Profile() {
       );
 
       if (hasError) {
-        showToast("Algunos datos no se pudieron cargar.");
+        showToast(t("Algunos datos no se pudieron cargar."));
       }
     } catch (error) {
-      showToast(error.message || "Error al cargar perfil.");
+      showToast(error.message || t("Error al cargar perfil."));
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, [showToast, t]);
 
   useEffect(() => {
     loadProfile();
@@ -159,9 +161,9 @@ export default function Profile() {
   const handleCopyReferral = async () => {
     try {
       await copyText(profile.referralLink);
-      showToast("Enlace copiado.");
+      showToast(t("Enlace copiado."));
     } catch (error) {
-      showToast("No se pudo copiar el enlace.");
+      showToast(t("No se pudo copiar el enlace."));
     }
   };
 
@@ -188,13 +190,13 @@ export default function Profile() {
         </div>
 
         <div className="profile-info profile-info-right">
-          <span className="eyebrow">Mi cuenta</span>
+          <span className="eyebrow">{t("Mi cuenta")}</span>
           <h2>{profile.email}</h2>
-          <p>código de invitación: {profile.referralCode}</p>
+          <p>{t("código de invitación")}: {profile.referralCode}</p>
         </div>
       </div>
 
-      {loading && <div className="panel">Cargando datos del perfil...</div>}
+      {loading && <div className="panel">{t("Cargando datos del perfil...")}</div>}
 
       <section className="wallet-panel profile-section-card">
         <div className="profile-section-title">
@@ -202,13 +204,13 @@ export default function Profile() {
             <FiCreditCard />
           </span>
           <div>
-            <h3>Balance principal</h3>
-            <p>Saldo retirable e inversión</p>
+            <h3>{t("Balance principal")}</h3>
+            <p>{t("Saldo retirable e inversión")}</p>
           </div>
         </div>
 
         <div className="profile-metric-card tone-card-success profile-today-earnings profile-today-inside-balance">
-          <span>Ganancias hoy</span>
+          <span>{t("Ganancias hoy")}</span>
           <strong>{formatUsdt(profile.todayTotalIncome)}</strong>
         </div>
 
@@ -218,7 +220,7 @@ export default function Profile() {
             onClick={() => navigate("/withdraw")}
             style={{ cursor: "pointer" }}
           >
-            <span>Retirable</span>
+            <span>{t("Retirable")}</span>
             <strong>{formatUsdt(profile.withdrawableBalance)} ›</strong>
           </div>
 
@@ -227,7 +229,7 @@ export default function Profile() {
             onClick={() => navigate("/recharge")}
             style={{ cursor: "pointer" }}
           >
-            <span>Inversión</span>
+            <span>{t("Inversión")}</span>
             <strong>{formatUsdt(profile.rechargeBalance)} ›</strong>
           </div>
         </div>
@@ -239,8 +241,8 @@ export default function Profile() {
             <FiGift />
           </span>
           <div>
-            <h3>Rendimiento de referidos</h3>
-            <p>Resumen de equipo</p>
+            <h3>{t("Rendimiento de referidos")}</h3>
+            <p>{t("Resumen de equipo")}</p>
           </div>
         </div>
 
@@ -252,19 +254,19 @@ export default function Profile() {
           >
             <span className="metric-icon"><FiUsers /></span>
             <b>{profile.totalMembers}</b>
-            <span>Equipo</span>
+            <span>{t("Equipo")}</span>
           </div>
 
           <div className="profile-metric-card tone-card-lavender">
             <span className="metric-icon"><FiCreditCard /></span>
             <b>{formatUsdt(profile.totalTeamRecharge)}</b>
-            <span>Recarga equipo</span>
+            <span>{t("Recarga equipo")}</span>
           </div>
 
           <div className="profile-metric-card tone-card-mint">
             <span className="metric-icon"><FiDollarSign /></span>
             <b>{formatUsdt(profile.totalReferralIncome)}</b>
-            <span>Ingresos ref.</span>
+            <span>{t("Ingresos ref.")}</span>
           </div>
         </div>
       </section>
@@ -275,7 +277,7 @@ export default function Profile() {
           onClick={handleCopyReferral}
           style={{ cursor: "pointer" }}
         >
-          <span>Copiar referido</span>
+          <span>{t("Copiar referido")}</span>
           <FiCopy />
         </div>
 
@@ -284,7 +286,7 @@ export default function Profile() {
           onClick={() => openTelegram(TELEGRAM_CHANNEL_URL)}
           style={{ cursor: "pointer" }}
         >
-          <span>Canal oficial</span>
+          <span>{t("Canal oficial")}</span>
 
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <FiSend />
@@ -297,7 +299,7 @@ export default function Profile() {
           onClick={() => openTelegram(TELEGRAM_SUPPORT_URL)}
           style={{ cursor: "pointer" }}
         >
-          <span>Soporte Telegram</span>
+          <span>{t("Soporte Telegram")}</span>
 
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <FiMessageCircle />
@@ -307,7 +309,7 @@ export default function Profile() {
       </div>
 
       <button className="logout-btn" onClick={handleLogout}>
-        Cerrar sesión
+        {t("Cerrar sesión")}
       </button>
     </div>
   );

@@ -5,9 +5,11 @@ import {
   createWithdrawRequest,
   getWithdrawInfo,
 } from "../services/authService";
+import { useI18n } from "../i18n/I18nContext";
 
 export default function Withdraw() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const toastTimerRef = useRef(null);
 
   const [available, setAvailable] = useState("0");
@@ -82,7 +84,7 @@ export default function Withdraw() {
         securityPassword,
       });
 
-      showToast("Solicitud de retiro creada");
+      showToast(t("Solicitud de retiro creada"));
 
       setAvailable(data.currentWithdrawable || "0");
       setWithdrawalAddress(data.withdrawalAddress || withdrawalAddress);
@@ -111,7 +113,7 @@ export default function Withdraw() {
 
         <div>
           <div className="eyebrow">BEP20-USDT</div>
-          <h2>Retirar</h2>
+          <h2>{t("Retirar")}</h2>
         </div>
 
         <button
@@ -124,7 +126,7 @@ export default function Withdraw() {
       </div>
 
       <div className="withdraw-balance-card withdraw-balance-compact">
-        <p>Disponible para retirar</p>
+        <p>{t("Disponible para retirar")}</p>
         <div className="withdraw-balance-inline">
           <strong>{Number(available || 0).toFixed(6)}</strong>
           <span>USDT</span>
@@ -133,7 +135,7 @@ export default function Withdraw() {
 
       <div className="panel withdraw-panel withdraw-network-panel">
         <div className="withdraw-row-title">
-          <h3>Red principal</h3>
+          <h3>{t("Red principal")}</h3>
           <div className="withdraw-network-mini">
             <span className="bnb-mini-icon">◆</span>
             <strong>BEP20-USDT</strong>
@@ -142,57 +144,57 @@ export default function Withdraw() {
       </div>
 
       <div className="panel withdraw-panel">
-        <h3>Dirección de retiro</h3>
+        <h3>{t("Dirección de retiro")}</h3>
 
         <input
           className="withdraw-input"
           value={withdrawalAddress}
           onChange={(e) => setWithdrawalAddress(e.target.value)}
-          placeholder="Ingrese dirección BEP20-USDT"
+          placeholder={t("Ingrese dirección BEP20-USDT")}
           disabled={addressLocked}
         />
 
         {addressLocked && (
           <p className="withdraw-help">
-            Dirección fijada. Después del primer retiro ya no puede cambiarse.
+            {t("Dirección fijada. Después del primer retiro ya no puede cambiarse.")}
           </p>
         )}
       </div>
 
       <div className="panel withdraw-panel">
-        <h3>Monto de retiro</h3>
+        <h3>{t("Monto de retiro")}</h3>
 
         <div className="withdraw-amount-box">
           <input
             className="withdraw-input amount-input"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Ingresa el monto"
+            placeholder={t("Ingresa el monto")}
             type="number"
             min="0"
             step="0.000001"
           />
 
           <button type="button" onClick={handleAll}>
-            Todo
+            {t("Todo")}
           </button>
         </div>
 
         <p className="withdraw-help withdraw-amount-note">
-          Mínimo <strong>{minWithdraw.toFixed(2)} USDT</strong> · Comisión{" "}
+          {t("Mínimo")} <strong>{minWithdraw.toFixed(2)} USDT</strong> · {t("Comisión retiro")}{" "}
           <strong>{feePercent}%</strong>
         </p>
       </div>
 
       <div className="panel withdraw-panel">
-        <h3>Contraseña de seguridad</h3>
+        <h3>{t("Contraseña de seguridad")}</h3>
 
         <div className="password-field">
           <input
             className="withdraw-input"
             value={securityPassword}
             onChange={(e) => setSecurityPassword(e.target.value)}
-            placeholder="Contraseña de seguridad"
+            placeholder={t("Contraseña de seguridad")}
             type={showPassword ? "text" : "password"}
           />
 
@@ -207,13 +209,13 @@ export default function Withdraw() {
       </div>
 
       <div className="withdraw-real-row withdraw-real-compact">
-        <span>Llegada real</span>
+        <span>{t("Llegada real")}</span>
         <strong>{realArrival.toFixed(6)} USDT</strong>
       </div>
 
       <div className="withdraw-small-note">
         <FiInfo />
-        Solo puedes solicitar 1 retiro cada 24 horas.
+        {t("Solo puedes solicitar 1 retiro cada 24 horas.")}
       </div>
 
       <button
@@ -222,12 +224,12 @@ export default function Withdraw() {
         onClick={handleConfirm}
         disabled={loading || sending}
       >
-        {sending ? "Procesando..." : "Confirmar retiro"}
+        {sending ? t("Procesando...") : t("Confirmar retiro")}
       </button>
 
       <div className="withdraw-mini-reminder">
-        <strong>Recordatorio:</strong> Solo se pueden retirar las ganancias disponibles;
-        el saldo de recarga/VIP no se considera retirable. El pago llega entre 5 minutos a 24 horas.
+        <strong>{t("Recordatorio:")}</strong> {t("Solo se pueden retirar las ganancias disponibles;")}{" "}
+        {t("el saldo de recarga/VIP no se considera retirable.")} {t("El pago llega entre 5 minutos a 24 horas.")}
       </div>
     </div>
   );

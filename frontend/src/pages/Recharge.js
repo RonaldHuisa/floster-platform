@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { QRCodeCanvas } from "qrcode.react";
 import { FiArrowLeft, FiCopy, FiCheckCircle } from "react-icons/fi";
 import { getMyWalletFromApi, scanMyDeposits } from "../services/authService";
+import { useI18n } from "../i18n/I18nContext";
 
 export default function Recharge() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const toastTimerRef = useRef(null);
 
   const [wallet, setWallet] = useState(null);
@@ -29,7 +31,7 @@ export default function Recharge() {
 
   const showTempCopied = () => {
     setCopied(true);
-    showToast("Dirección copiada", "success", 2200);
+    showToast(t("Dirección copiada"), "success", 2200);
 
     setTimeout(() => {
       setCopied(false);
@@ -43,13 +45,13 @@ export default function Recharge() {
       const data = await getMyWalletFromApi();
       setWallet(data.wallet || data);
     } catch (err) {
-      const message = err.message || "No se pudo cargar la dirección de depósito.";
+      const message = err.message || t("No se pudo cargar la dirección de depósito.");
       setError(message);
       showToast(message, "error");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadWallet();
@@ -78,7 +80,7 @@ export default function Recharge() {
       await navigator.clipboard.writeText(address);
       showTempCopied();
     } catch {
-      const message = "No se pudo copiar la dirección.";
+      const message = t("No se pudo copiar la dirección.");
       setError(message);
       showToast(message, "error");
     }
@@ -88,7 +90,7 @@ export default function Recharge() {
     try {
       setScanning(true);
       setError("");
-      showToast("Verificando depósito en blockchain...", "info", 5000);
+      showToast(t("Verificando depósito en blockchain..."), "info", 5000);
 
       const result = await scanMyDeposits();
 
@@ -96,31 +98,31 @@ export default function Recharge() {
         const addedAmount = Number(result.addedAmount || 0).toFixed(2);
 
         if (result.sweep?.status === "swept") {
-          showToast(`Recarga procesada: ${addedAmount} USDT abonados.`, "success", 5200);
+          showToast(`${t("Recarga procesada")}: ${addedAmount} ${t("USDT abonados.")}`, "success", 5200);
         } else if (result.sweep?.status === "insufficient_usdt") {
           showToast(
-            `Depósito detectado: ${addedAmount} USDT. Esperando confirmación final.`,
+            `${t("Depósito detectado")}: ${addedAmount} USDT. ${t("Esperando confirmación final.")}`,
             "warning",
             5200
           );
         } else if (result.sweep?.status === "failed") {
           showToast(
-            `Depósito abonado: ${addedAmount} USDT. Pendiente mover USDT.`,
+            `${t("Depósito abonado")}: ${addedAmount} USDT. ${t("Pendiente mover USDT.")}`,
             "warning",
             5200
           );
         } else {
-          showToast(`Recarga procesada: ${addedAmount} USDT abonados.`, "success", 5200);
+          showToast(`${t("Recarga procesada")}: ${addedAmount} ${t("USDT abonados.")}`, "success", 5200);
         }
       } else if (result.detectedTransfers > 0) {
-        showToast("Este depósito ya fue procesado anteriormente.", "warning", 4800);
+        showToast(t("Este depósito ya fue procesado anteriormente."), "warning", 4800);
       } else {
-        showToast("No se detectó ningún depósito nuevo.", "warning", 4200);
+        showToast(t("No se detectó ningún depósito nuevo."), "warning", 4200);
       }
 
       await loadWallet();
     } catch (err) {
-      const message = err.message || "No se pudo verificar la recarga.";
+      const message = err.message || t("No se pudo verificar la recarga.");
       setError(message);
       showToast(message, "error", 5200);
     } finally {
@@ -143,7 +145,7 @@ export default function Recharge() {
 
         <div>
           <div className="eyebrow">BEP20-USDT</div>
-          <h2>Recargar</h2>
+          <h2>{t("Recargar")}</h2>
         </div>
 
         <button className="icon-btn ghost-icon" type="button" onClick={handleCopy}>
@@ -153,7 +155,7 @@ export default function Recharge() {
 
       {loading ? (
         <div className="panel recharge-loading-card">
-          <p>Cargando dirección de depósito...</p>
+          <p>{t("Cargando dirección de depósito...")}</p>
         </div>
       ) : (
         <>
@@ -165,7 +167,7 @@ export default function Recharge() {
 
           <div className="panel recharge-pro-panel recharge-network-pro">
             <div className="recharge-network-head">
-              <h3>Red de depósito</h3>
+              <h3>{t("Red de depósito")}</h3>
               <div className="recharge-token-badges">
                 <span className="token-badge token-bnb">
                   <span className="token-mini-icon token-mini-bnb">◆</span>
@@ -188,7 +190,7 @@ export default function Recharge() {
                 {address ? (
                   <QRCodeCanvas value={address} size={190} includeMargin />
                 ) : (
-                  <div className="qr-empty-state">Sin dirección</div>
+                  <div className="qr-empty-state">{t("Sin dirección")}</div>
                 )}
               </div>
             </div>
@@ -196,12 +198,12 @@ export default function Recharge() {
 
           <div className="panel recharge-pro-panel">
             <div className="recharge-title-row">
-              <h3>Dirección de depósito</h3>
+              <h3>{t("Dirección de depósito")}</h3>
               <span className="wallet-badge-pro">Wallet</span>
             </div>
 
             <div className="address-row-pro">
-              <div className="address-value-pro">{address || "Sin dirección disponible"}</div>
+              <div className="address-value-pro">{address || t("Sin dirección disponible")}</div>
 
               <button
                 type="button"
@@ -210,7 +212,7 @@ export default function Recharge() {
                 disabled={!address}
               >
                 <FiCopy />
-                <span>{copied ? "Copiado" : "Copiar"}</span>
+                <span>{copied ? t("Copiado") : t("Copiar")}</span>
               </button>
             </div>
           </div>
@@ -221,20 +223,20 @@ export default function Recharge() {
             onClick={handleScan}
             disabled={scanning || !address}
           >
-            {scanning ? "Verificando..." : "Recarga completa"}
+            {scanning ? t("Verificando...") : t("Recarga completa")}
           </button>
 
           <div className="panel friendly-note friendly-note-pro">
             <div className="friendly-title">
               <FiCheckCircle />
-              <span>Recordatorio importante</span>
+              <span>{t("Recordatorio importante")}</span>
             </div>
 
             <ol className="friendly-list">
-              <li>Copia la dirección superior o escanea el código QR.</li>
-              <li>Usa únicamente la red <strong>BNB Smart Chain BEP20</strong> para enviar USDT.</li>
-              <li>Después de enviar el pago, presiona <strong>“Recarga completa”</strong>. Este paso es vital para verificar la blockchain y abonar tu saldo.</li>
-              <li>No envíes otros activos ni uses otra red. Los depósitos duplicados no se vuelven a sumar.</li>
+              <li>{t("Copia la dirección superior o escanea el código QR.")}</li>
+              <li>{t("Usa únicamente la red")} <strong>BNB Smart Chain BEP20</strong> {t("para enviar USDT.")}</li>
+              <li>{t("Después de enviar el pago, presiona")} <strong>“{t("Recarga completa")}”</strong>. {t("Este paso es vital para verificar la blockchain y abonar tu saldo.")}</li>
+              <li>{t("No envíes otros activos ni uses otra red. Los depósitos duplicados no se vuelven a sumar.")}</li>
             </ol>
           </div>
         </>
