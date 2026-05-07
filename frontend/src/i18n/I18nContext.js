@@ -279,6 +279,23 @@ const esToEn = {
   "Comisión de referido nivel": "Referral commission level",
   "Comisión de referido": "Referral commission",
   "Comisión retiro": "Fee",
+  "Premios por invitar": "Referral rewards",
+  "Invita amigos y desbloquea bonos extra.": "Invite friends and unlock extra bonuses.",
+  "Invitados directos": "Direct invites",
+  "Próximo premio": "Next reward",
+  "invitados para desbloquear": "invites to unlock",
+  "Todos los premios disponibles fueron alcanzados.": "All available rewards were reached.",
+  "invitados": "invites",
+  "Reclamar": "Claim",
+  "Reclamado": "Claimed",
+  "Bloqueado": "Locked",
+  "Premio reclamado correctamente.": "Reward claimed successfully.",
+  "No se pudo reclamar el premio.": "Could not claim the reward.",
+  "Invitados válidos": "Qualified invites",
+  "invitados con VIP para desbloquear": "VIP invites to unlock",
+  "Invita usuarios activos y desbloquea bonos extra.": "Invite active users and unlock extra bonuses.",
+  "Debes tener un VIP activo para solicitar retiros.": "You must have an active VIP plan to request withdrawals.",
+  "VIP requerido": "VIP required",
 };
 
 const enToEs = Object.fromEntries(Object.entries(esToEn).map(([es, en]) => [en, es]));

@@ -17,6 +17,8 @@ export default function Withdraw() {
   const [minWithdraw, setMinWithdraw] = useState(1);
   const [withdrawalAddress, setWithdrawalAddress] = useState("");
   const [addressLocked, setAddressLocked] = useState(false);
+  const [canWithdraw, setCanWithdraw] = useState(true);
+  const [withdrawRequirementMessage, setWithdrawRequirementMessage] = useState("");
 
   const [amount, setAmount] = useState("");
   const [securityPassword, setSecurityPassword] = useState("");
@@ -49,6 +51,8 @@ export default function Withdraw() {
       setMinWithdraw(Number(data.minWithdraw || 1));
       setWithdrawalAddress(data.withdrawalAddress || "");
       setAddressLocked(Boolean(data.addressLocked));
+      setCanWithdraw(data.canWithdraw !== false);
+      setWithdrawRequirementMessage(data.withdrawRequirementMessage || "");
     } catch (error) {
       showToast(error.message);
     } finally {
@@ -75,6 +79,11 @@ export default function Withdraw() {
   };
 
   const handleConfirm = async () => {
+    if (!canWithdraw) {
+      showToast(t("Debes tener un VIP activo para solicitar retiros."));
+      return;
+    }
+
     try {
       setSending(true);
 
@@ -133,6 +142,15 @@ export default function Withdraw() {
         </div>
       </div>
 
+      {!canWithdraw && (
+        <div className="withdraw-vip-required-note">
+          <FiInfo />
+          <span>
+            {t(withdrawRequirementMessage || "Debes tener un VIP activo para solicitar retiros.")}
+          </span>
+        </div>
+      )}
+
       <div className="panel withdraw-panel withdraw-network-panel">
         <div className="withdraw-row-title">
           <h3>{t("Red principal")}</h3>
@@ -151,7 +169,7 @@ export default function Withdraw() {
           value={withdrawalAddress}
           onChange={(e) => setWithdrawalAddress(e.target.value)}
           placeholder={t("Ingrese dirección BEP20-USDT")}
-          disabled={addressLocked}
+          disabled={addressLocked || !canWithdraw}
         />
 
         {addressLocked && (
@@ -173,9 +191,10 @@ export default function Withdraw() {
             type="number"
             min="0"
             step="0.000001"
+            disabled={!canWithdraw}
           />
 
-          <button type="button" onClick={handleAll}>
+          <button type="button" onClick={handleAll} disabled={!canWithdraw}>
             {t("Todo")}
           </button>
         </div>
@@ -196,6 +215,7 @@ export default function Withdraw() {
             onChange={(e) => setSecurityPassword(e.target.value)}
             placeholder={t("Contraseña de seguridad")}
             type={showPassword ? "text" : "password"}
+            disabled={!canWithdraw}
           />
 
           <button
@@ -222,9 +242,9 @@ export default function Withdraw() {
         className="primary-btn recharge-main-btn withdraw-confirm-compact"
         type="button"
         onClick={handleConfirm}
-        disabled={loading || sending}
+        disabled={loading || sending || !canWithdraw}
       >
-        {sending ? t("Procesando...") : t("Confirmar retiro")}
+        {!canWithdraw ? t("VIP requerido") : sending ? t("Procesando...") : t("Confirmar retiro")}
       </button>
 
       <div className="withdraw-mini-reminder">

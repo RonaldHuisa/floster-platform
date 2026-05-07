@@ -303,3 +303,17 @@ export async function getAdminStatus() {
 
   return data;
 }
+
+
+export function getReferralRewardsStatus() {
+  return request("/referrals/rewards/status", {
+    method: "GET",
+  });
+}
+
+export function claimReferralReward(tierId) {
+  return request("/referrals/rewards/claim", {
+    method: "POST",
+    body: JSON.stringify({ tierId }),
+  });
+}

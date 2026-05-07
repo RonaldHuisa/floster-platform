@@ -9427,3 +9427,312 @@ body {
   font-size: 13px;
   font-weight: 700;
 }
+
+
+/* =========================================================
+   PROMOCIÓN - PREMIOS POR INVITACIÓN
+========================================================= */
+
+.promotion-reward-section {
+  margin-top: 14px !important;
+  margin-bottom: 110px !important;
+}
+
+.promotion-reward-banner {
+  min-height: 88px !important;
+  border-radius: 24px !important;
+  padding: 16px !important;
+  display: grid !important;
+  grid-template-columns: 48px 1fr auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255, 214, 102, .55) 0, transparent 35%),
+    linear-gradient(135deg, #17b98f 0%, #55d1c6 48%, #f0c85e 100%) !important;
+  border: 1px solid rgba(255,255,255,.62) !important;
+  box-shadow: 0 16px 32px rgba(30, 62, 98, 0.09) !important;
+  color: #ffffff !important;
+  overflow: hidden !important;
+}
+
+.promotion-reward-banner-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 17px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: rgba(255,255,255,.22) !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+}
+
+.promotion-reward-banner-icon svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.promotion-reward-banner-copy span {
+  display: block !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  opacity: .88 !important;
+  margin-bottom: 3px !important;
+}
+
+.promotion-reward-banner-copy strong {
+  display: block !important;
+  font-size: 15px !important;
+  line-height: 1.22 !important;
+  font-weight: 880 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.promotion-reward-banner-badge {
+  min-width: 54px !important;
+  height: 36px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(255,255,255,.92) !important;
+  color: #0c927a !important;
+  font-size: 13px !important;
+  font-weight: 880 !important;
+}
+
+.promotion-reward-progress-card {
+  margin-top: 12px !important;
+  padding: 16px !important;
+  border-radius: 24px !important;
+}
+
+.promotion-reward-progress-head {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  margin-bottom: 13px !important;
+}
+
+.promotion-reward-progress-head div {
+  border-radius: 18px !important;
+  padding: 12px !important;
+  background: #f8fbff !important;
+  border: 1px solid var(--line, #d9e5f2) !important;
+  text-align: center !important;
+}
+
+.promotion-reward-progress-head span {
+  display: block !important;
+  color: var(--text-soft, #526982) !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  margin-bottom: 5px !important;
+}
+
+.promotion-reward-progress-head strong {
+  color: var(--text, #0f1f36) !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.promotion-reward-progress-bar {
+  height: 12px !important;
+  border-radius: 999px !important;
+  background: #edf4fb !important;
+  border: 1px solid #dce8f4 !important;
+  overflow: hidden !important;
+}
+
+.promotion-reward-progress-bar span {
+  display: block !important;
+  height: 100% !important;
+  min-width: 8px !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, #16b985, #55d1c6) !important;
+}
+
+.promotion-reward-progress-card > p {
+  margin: 9px 0 14px !important;
+  color: var(--text-soft, #526982) !important;
+  font-size: 11.5px !important;
+  font-weight: 650 !important;
+  text-align: center !important;
+}
+
+.promotion-reward-tier-list {
+  display: grid !important;
+  gap: 9px !important;
+}
+
+.promotion-reward-tier {
+  min-height: 56px !important;
+  display: grid !important;
+  grid-template-columns: 38px 1fr auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  border-radius: 18px !important;
+  padding: 10px 11px !important;
+  background: #f8fbff !important;
+  border: 1px solid var(--line, #d9e5f2) !important;
+}
+
+.promotion-reward-tier.available {
+  background: #effbf7 !important;
+  border-color: #aee8dd !important;
+}
+
+.promotion-reward-tier.claimed,
+.promotion-reward-tier.paid {
+  background: #f2fff9 !important;
+  border-color: #b7eadf !important;
+}
+
+.promotion-reward-tier.locked {
+  opacity: .82 !important;
+}
+
+.promotion-reward-tier-icon {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 14px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: #eef6ff !important;
+  color: #3279f6 !important;
+}
+
+.promotion-reward-tier.available .promotion-reward-tier-icon {
+  background: #dcf8f1 !important;
+  color: #16a878 !important;
+}
+
+.promotion-reward-tier.claimed .promotion-reward-tier-icon,
+.promotion-reward-tier.paid .promotion-reward-tier-icon {
+  background: #dcf8f1 !important;
+  color: #16a878 !important;
+}
+
+.promotion-reward-tier.locked .promotion-reward-tier-icon {
+  background: #f2f6fb !important;
+  color: #8aa0b8 !important;
+}
+
+.promotion-reward-tier-icon svg {
+  width: 17px !important;
+  height: 17px !important;
+}
+
+.promotion-reward-tier-info strong {
+  display: block !important;
+  color: var(--text, #0f1f36) !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+}
+
+.promotion-reward-tier-info small {
+  display: block !important;
+  margin-top: 3px !important;
+  color: #16a878 !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+}
+
+.promotion-reward-tier button,
+.promotion-reward-tier em {
+  min-width: 80px !important;
+  height: 34px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 12px !important;
+  font-style: normal !important;
+  font-size: 11.5px !important;
+  font-weight: 850 !important;
+}
+
+.promotion-reward-tier button {
+  border: none !important;
+  background: #55cfc0 !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 18px rgba(85, 207, 192, .18) !important;
+}
+
+.promotion-reward-tier button:disabled {
+  opacity: .66 !important;
+  cursor: not-allowed !important;
+}
+
+.promotion-reward-tier em {
+  background: #f4f8fc !important;
+  color: #7f91a8 !important;
+  border: 1px solid #dce8f4 !important;
+}
+
+.promotion-reward-tier.claimed em,
+.promotion-reward-tier.paid em {
+  color: #16a878 !important;
+  background: #dcf8f1 !important;
+  border-color: #b7eadf !important;
+}
+
+@media (max-width: 390px) {
+  .promotion-reward-banner {
+    grid-template-columns: 44px 1fr auto !important;
+    padding: 14px !important;
+  }
+
+  .promotion-reward-banner-copy strong {
+    font-size: 14px !important;
+  }
+
+  .promotion-reward-tier {
+    grid-template-columns: 34px 1fr auto !important;
+    padding: 9px !important;
+  }
+
+  .promotion-reward-tier button,
+  .promotion-reward-tier em {
+    min-width: 72px !important;
+    padding: 0 10px !important;
+    font-size: 11px !important;
+  }
+}
+
+
+/* =========================================================
+   WITHDRAW - REQUIERE VIP ACTIVO
+========================================================= */
+
+.withdraw-vip-required-note {
+  margin: -2px 0 14px !important;
+  padding: 12px 14px !important;
+  border-radius: 18px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 9px !important;
+  background: #fff8e8 !important;
+  border: 1px solid #f1d79f !important;
+  color: #8a6418 !important;
+  font-size: 12.5px !important;
+  font-weight: 720 !important;
+  line-height: 1.35 !important;
+}
+
+.withdraw-vip-required-note svg {
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 auto !important;
+  margin-top: 1px !important;
+}
+
+.withdraw-page input:disabled,
+.withdraw-page button:disabled {
+  cursor: not-allowed !important;
+}
+
+.withdraw-page .withdraw-input:disabled {
+  background: #f4f8fc !important;
+  color: #8aa0b8 !important;
+}
