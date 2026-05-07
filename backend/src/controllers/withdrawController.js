@@ -60,9 +60,19 @@ async function getWithdrawInfo(req, res) {
 
         const result = await pool.query(
             `
-      SELECT id, withdrawable_usdt, withdrawal_address_bep20
-      FROM users
-      WHERE id = $1
+      SELECT 
+        u.id, 
+        u.withdrawable_usdt, 
+        u.withdrawal_address_bep20,
+        EXISTS (
+          SELECT 1
+          FROM vip_purchases vp
+          WHERE vp.user_id = u.id
+            AND vp.status = 'active'
+            AND vp.expires_at > NOW()
+        ) AS has_active_vip
+      FROM users u
+      WHERE u.id = $1
       `,
             [userId]
         );
@@ -82,6 +92,10 @@ async function getWithdrawInfo(req, res) {
             minWithdraw: MIN_WITHDRAW_USDT,
             withdrawalAddress: user.withdrawal_address_bep20,
             addressLocked: Boolean(user.withdrawal_address_bep20),
+            canWithdraw: Boolean(user.has_active_vip),
+            hasActiveVip: Boolean(user.has_active_vip),
+            withdrawRequirementMessage:
+                "Debes tener un VIP activo para solicitar retiros.",
         });
     } catch (error) {
         console.error("GET WITHDRAW INFO ERROR:", error);
@@ -149,12 +163,19 @@ async function createWithdrawRequest(req, res) {
         const userResult = await client.query(
             `
             SELECT 
-                id, 
-                password_hash AS password,
-                withdrawable_usdt, 
-                withdrawal_address_bep20
-            FROM users
-            WHERE id = $1
+                u.id, 
+                u.password_hash AS password,
+                u.withdrawable_usdt, 
+                u.withdrawal_address_bep20,
+                EXISTS (
+                    SELECT 1
+                    FROM vip_purchases vp
+                    WHERE vp.user_id = u.id
+                      AND vp.status = 'active'
+                      AND vp.expires_at > NOW()
+                ) AS has_active_vip
+            FROM users u
+            WHERE u.id = $1
             FOR UPDATE
             `,
             [userId]
@@ -168,6 +189,14 @@ async function createWithdrawRequest(req, res) {
         }
 
         const user = userResult.rows[0];
+
+        if (!user.has_active_vip) {
+            await client.query("ROLLBACK");
+
+            return res.status(400).json({
+                message: "Debes tener un VIP activo para solicitar retiros.",
+            });
+        }
 
         const passwordOk = await bcrypt.compare(securityPassword, user.password);
 
