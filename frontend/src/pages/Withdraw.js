@@ -75,7 +75,16 @@ export default function Withdraw() {
   const amountNumber = Number(amount || 0);
   const feeAmount = amountNumber * (feePercent / 100);
   const realArrivalBeforePolicy = amountNumber > 0 ? amountNumber - feeAmount : 0;
-  const policyApplies = Boolean(withdrawalPolicy?.applies);
+  const policyApplies = Boolean(
+    withdrawalPolicy?.applies ||
+      (
+        withdrawalPolicy?.isVipEligibleForPolicy &&
+        !withdrawalPolicy?.hasEnoughActiveInvites &&
+        Number(withdrawalPolicy?.totalVipInvested || 0) > 0 &&
+        Number(withdrawalPolicy?.totalRequestedBefore || 0) + amountNumber >=
+          Number(withdrawalPolicy?.recoveredLimitAmount || 0)
+      )
+  );
   const policyReductionPercent = Number(withdrawalPolicy?.reductionPercent || 0);
   const policyReductionAmount = policyApplies
     ? realArrivalBeforePolicy * (policyReductionPercent / 100)
@@ -164,7 +173,8 @@ export default function Withdraw() {
         <div className="withdraw-policy-note danger">
           <FiInfo />
           <span>
-            {t("Actualmente este retiro tiene una reducción del 75%. Invita 5 personas activas más y se quitará esta restricción. Podrás retirar el 100% con normalidad.")}
+            {t("Actualmente este retiro tiene una reducción del 75% porque superaste el porcentaje de recuperación permitido sin completar la meta de comunidad. Invita 5 personas activas más y se quitará esta restricción. Podrás retirar el 100% con normalidad.")}
+
           </span>
         </div>
       )}
