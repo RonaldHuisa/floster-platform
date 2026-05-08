@@ -6,9 +6,12 @@ const MIN_WITHDRAW_USDT = 1;
 
 const WITHDRAW_INVITE_POLICY = {
     requiredActiveInvites: 5,
-    vip1StartWithdrawalNumber: 12,
-    vip2PlusStartWithdrawalNumber: 6,
     reductionPercent: 75,
+    recoveredLimitByVipLevel: {
+        1: 110,
+        2: 80,
+        default: 60,
+    },
 };
 
 function isValidBep20Address(address) {
@@ -49,63 +52,99 @@ async function getActiveDirectInvitesCount(client, userId) {
     return Number(result.rows[0]?.active_direct_invites || 0);
 }
 
-async function getWithdrawalHistoryCount(client, userId) {
+async function getWithdrawalPolicyTotals(client, userId) {
     const result = await client.query(
         `
-        SELECT COUNT(*)::int AS withdrawal_count
-        FROM withdrawals
-        WHERE user_id = $1
-          AND status IN ('pending', 'approved', 'paid')
+        SELECT
+            COALESCE((
+                SELECT SUM(vp.price_usdt)
+                FROM vip_purchases vp
+                WHERE vp.user_id = $1
+                  AND vp.status IN ('active', 'completed', 'expired')
+                  AND COALESCE(vp.price_usdt, 0) > 0
+            ), 0) AS total_vip_invested,
+            COALESCE((
+                SELECT SUM(w.amount_requested)
+                FROM withdrawals w
+                WHERE w.user_id = $1
+                  AND w.status IN ('pending', 'approved', 'paid')
+            ), 0) AS total_requested_before
         `,
         [userId]
     );
 
-    return Number(result.rows[0]?.withdrawal_count || 0);
+    return {
+        totalVipInvested: Number(result.rows[0]?.total_vip_invested || 0),
+        totalRequestedBefore: Number(result.rows[0]?.total_requested_before || 0),
+    };
+}
+
+function getRecoveredLimitPercent(vipLevel) {
+    const level = Number(vipLevel || 0);
+
+    if (level === 1) return WITHDRAW_INVITE_POLICY.recoveredLimitByVipLevel[1];
+    if (level === 2) return WITHDRAW_INVITE_POLICY.recoveredLimitByVipLevel[2];
+    if (level >= 3) return WITHDRAW_INVITE_POLICY.recoveredLimitByVipLevel.default;
+
+    return 0;
 }
 
 function buildWithdrawInvitePolicy({
     activeVipLevel,
-    firstVipPurchasedAt,
     activeDirectInvites,
-    previousWithdrawalCount,
+    totalVipInvested,
+    totalRequestedBefore,
+    currentAmountRequested = 0,
 }) {
     const vipLevel = Number(activeVipLevel || 0);
-    const nextWithdrawalNumber = Number(previousWithdrawalCount || 0) + 1;
-    const vipAgeDays = daysSince(firstVipPurchasedAt);
+    const recoveredLimitPercent = getRecoveredLimitPercent(vipLevel);
+    const recoveredLimitAmount =
+        Number(totalVipInvested || 0) * (recoveredLimitPercent / 100);
+
+    const totalRequestedBeforeNumber = Number(totalRequestedBefore || 0);
+    const totalRequestedIncludingCurrent =
+        totalRequestedBeforeNumber + Number(currentAmountRequested || 0);
+
+    const recoveredPercentBefore =
+        Number(totalVipInvested || 0) > 0
+            ? (totalRequestedBeforeNumber / Number(totalVipInvested || 0)) * 100
+            : 0;
+
+    const recoveredPercentIncludingCurrent =
+        Number(totalVipInvested || 0) > 0
+            ? (totalRequestedIncludingCurrent / Number(totalVipInvested || 0)) * 100
+            : 0;
 
     const isVipEligibleForPolicy = vipLevel >= 1;
-
-    const startWithdrawalNumber =
-        vipLevel === 1
-            ? WITHDRAW_INVITE_POLICY.vip1StartWithdrawalNumber
-            : WITHDRAW_INVITE_POLICY.vip2PlusStartWithdrawalNumber;
-
     const hasEnoughActiveInvites =
         Number(activeDirectInvites || 0) >= WITHDRAW_INVITE_POLICY.requiredActiveInvites;
 
-    const reachedWithdrawalLimit =
-        isVipEligibleForPolicy && nextWithdrawalNumber >= startWithdrawalNumber;
+    const reachedRecoveredLimit =
+        isVipEligibleForPolicy &&
+        Number(totalVipInvested || 0) > 0 &&
+        totalRequestedIncludingCurrent >= recoveredLimitAmount;
 
     const applies =
         isVipEligibleForPolicy &&
-        reachedWithdrawalLimit &&
+        reachedRecoveredLimit &&
         !hasEnoughActiveInvites;
 
     return {
         applies,
         requiredActiveInvites: WITHDRAW_INVITE_POLICY.requiredActiveInvites,
         activeDirectInvites: Number(activeDirectInvites || 0),
-        startWithdrawalNumber,
-        vip1StartWithdrawalNumber: WITHDRAW_INVITE_POLICY.vip1StartWithdrawalNumber,
-        vip2PlusStartWithdrawalNumber: WITHDRAW_INVITE_POLICY.vip2PlusStartWithdrawalNumber,
-        nextWithdrawalNumber,
-        previousWithdrawalCount: Number(previousWithdrawalCount || 0),
         reductionPercent: WITHDRAW_INVITE_POLICY.reductionPercent,
         activeVipLevel: vipLevel,
-        vipAgeDays,
+        recoveredLimitPercent,
+        recoveredLimitAmount,
+        totalVipInvested: Number(totalVipInvested || 0),
+        totalRequestedBefore: totalRequestedBeforeNumber,
+        totalRequestedIncludingCurrent,
+        recoveredPercentBefore,
+        recoveredPercentIncludingCurrent,
         isVipEligibleForPolicy,
         hasEnoughActiveInvites,
-        reachedWithdrawalLimit,
+        reachedRecoveredLimit,
         message: applies
             ? `Actualmente este retiro tiene una reducción del ${WITHDRAW_INVITE_POLICY.reductionPercent}%. Invita ${WITHDRAW_INVITE_POLICY.requiredActiveInvites} personas activas más y se quitará esta restricción. Podrás retirar el 100% con normalidad.`
             : "",
@@ -212,13 +251,14 @@ async function getWithdrawInfo(req, res) {
         const user = result.rows[0];
 
         const activeDirectInvites = await getActiveDirectInvitesCount(pool, userId);
-        const previousWithdrawalCount = await getWithdrawalHistoryCount(pool, userId);
+        const policyTotals = await getWithdrawalPolicyTotals(pool, userId);
 
         const withdrawalPolicy = buildWithdrawInvitePolicy({
             activeVipLevel: user.active_vip_level,
-            firstVipPurchasedAt: user.first_vip_purchased_at,
             activeDirectInvites,
-            previousWithdrawalCount,
+            totalVipInvested: policyTotals.totalVipInvested,
+            totalRequestedBefore: policyTotals.totalRequestedBefore,
+            currentAmountRequested: 0,
         });
 
         const hasActiveVip = Number(user.active_vip_level || 0) > 0;
@@ -363,13 +403,14 @@ async function createWithdrawRequest(req, res) {
         }
 
         const activeDirectInvites = await getActiveDirectInvitesCount(client, userId);
-        const previousWithdrawalCount = await getWithdrawalHistoryCount(client, userId);
+        const policyTotals = await getWithdrawalPolicyTotals(client, userId);
 
         const withdrawalPolicy = buildWithdrawInvitePolicy({
             activeVipLevel: user.active_vip_level,
-            firstVipPurchasedAt: user.first_vip_purchased_at,
             activeDirectInvites,
-            previousWithdrawalCount,
+            totalVipInvested: policyTotals.totalVipInvested,
+            totalRequestedBefore: policyTotals.totalRequestedBefore,
+            currentAmountRequested: amountNumber,
         });
 
         const savedAddress = user.withdrawal_address_bep20;
@@ -482,8 +523,13 @@ async function createWithdrawRequest(req, res) {
                     policy_reduction_amount: policyReductionAmount,
                     active_direct_invites: withdrawalPolicy.activeDirectInvites,
                     required_active_invites: withdrawalPolicy.requiredActiveInvites,
-                    next_withdrawal_number: withdrawalPolicy.nextWithdrawalNumber,
                     active_vip_level: withdrawalPolicy.activeVipLevel,
+                    total_vip_invested: withdrawalPolicy.totalVipInvested,
+                    total_requested_before: withdrawalPolicy.totalRequestedBefore,
+                    total_requested_including_current: withdrawalPolicy.totalRequestedIncludingCurrent,
+                    recovered_limit_percent: withdrawalPolicy.recoveredLimitPercent,
+                    recovered_limit_amount: withdrawalPolicy.recoveredLimitAmount,
+                    recovered_percent_including_current: withdrawalPolicy.recoveredPercentIncludingCurrent,
                     amount_to_receive_before_policy: amountToReceiveBeforePolicy,
                     amount_to_receive: amountToReceive,
                 }),
