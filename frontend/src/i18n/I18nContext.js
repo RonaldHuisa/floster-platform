@@ -296,6 +296,14 @@ const esToEn = {
   "Invita usuarios activos y desbloquea bonos extra.": "Invite active users and unlock extra bonuses.",
   "Debes tener un VIP activo para solicitar retiros.": "You must have an active VIP plan to request withdrawals.",
   "VIP requerido": "VIP required",
+  "Por no contar con 5 invitados activos, desde este retiro se aplicará una reducción del 75%.": "Because you do not have 5 active invites, a 75% reduction will apply from this withdrawal.",
+  "Invitados activos": "Active invites",
+  "La reducción aplica desde el quinto retiro si no completas la meta.": "The reduction applies from the fifth withdrawal if you do not complete the goal.",
+  "Llegada real con reducción": "Actual arrival with reduction",
+  "Reducción por meta de invitados": "Invite goal reduction",
+  "Por no contar con 5 invitados activos, desde tu sexto retiro se aplicará una reducción del 75%.": "Because you do not have 5 active invites, a 75% reduction will apply from your sixth withdrawal.",
+  "Por no contar con 5 invitados activos, desde tu retiro 12 se aplicará una reducción del 75%.": "Because you do not have 5 active invites, a 75% reduction will apply from your 12th withdrawal.",
+  "Actualmente este retiro tiene una reducción del 75%. Invita 5 personas activas más y se quitará esta restricción. Podrás retirar el 100% con normalidad.": "This withdrawal currently has a 75% reduction. Invite 5 more active people and this restriction will be removed. You will be able to withdraw 100% normally.",
 };
 
 const enToEs = Object.fromEntries(Object.entries(esToEn).map(([es, en]) => [en, es]));

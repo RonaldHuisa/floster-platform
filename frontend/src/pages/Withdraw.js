@@ -19,6 +19,7 @@ export default function Withdraw() {
   const [addressLocked, setAddressLocked] = useState(false);
   const [canWithdraw, setCanWithdraw] = useState(true);
   const [withdrawRequirementMessage, setWithdrawRequirementMessage] = useState("");
+  const [withdrawalPolicy, setWithdrawalPolicy] = useState(null);
 
   const [amount, setAmount] = useState("");
   const [securityPassword, setSecurityPassword] = useState("");
@@ -53,6 +54,7 @@ export default function Withdraw() {
       setAddressLocked(Boolean(data.addressLocked));
       setCanWithdraw(data.canWithdraw !== false);
       setWithdrawRequirementMessage(data.withdrawRequirementMessage || "");
+      setWithdrawalPolicy(data.withdrawalPolicy || null);
     } catch (error) {
       showToast(error.message);
     } finally {
@@ -72,7 +74,13 @@ export default function Withdraw() {
 
   const amountNumber = Number(amount || 0);
   const feeAmount = amountNumber * (feePercent / 100);
-  const realArrival = amountNumber > 0 ? amountNumber - feeAmount : 0;
+  const realArrivalBeforePolicy = amountNumber > 0 ? amountNumber - feeAmount : 0;
+  const policyApplies = Boolean(withdrawalPolicy?.applies);
+  const policyReductionPercent = Number(withdrawalPolicy?.reductionPercent || 0);
+  const policyReductionAmount = policyApplies
+    ? realArrivalBeforePolicy * (policyReductionPercent / 100)
+    : 0;
+  const realArrival = Math.max(realArrivalBeforePolicy - policyReductionAmount, 0);
 
   const handleAll = () => {
     setAmount(Number(available || 0).toString());
@@ -100,6 +108,7 @@ export default function Withdraw() {
       setAddressLocked(true);
       setAmount("");
       setSecurityPassword("");
+      setWithdrawalPolicy(data.withdrawalPolicy || withdrawalPolicy);
     } catch (error) {
       showToast(error.message);
     } finally {
@@ -147,6 +156,15 @@ export default function Withdraw() {
           <FiInfo />
           <span>
             {t(withdrawRequirementMessage || "Debes tener un VIP activo para solicitar retiros.")}
+          </span>
+        </div>
+      )}
+
+      {canWithdraw && policyApplies && (
+        <div className="withdraw-policy-note danger">
+          <FiInfo />
+          <span>
+            {t("Actualmente este retiro tiene una reducción del 75%. Invita 5 personas activas más y se quitará esta restricción. Podrás retirar el 100% con normalidad.")}
           </span>
         </div>
       )}
@@ -229,9 +247,18 @@ export default function Withdraw() {
       </div>
 
       <div className="withdraw-real-row withdraw-real-compact">
-        <span>{t("Llegada real")}</span>
+        <span>{policyApplies ? t("Llegada real con reducción") : t("Llegada real")}</span>
         <strong>{realArrival.toFixed(6)} USDT</strong>
       </div>
+
+      {policyApplies && amountNumber > 0 && (
+        <div className="withdraw-policy-breakdown">
+          <span>
+            {t("Reducción por meta de invitados")}:{" "}
+            <strong>-{policyReductionAmount.toFixed(6)} USDT</strong>
+          </span>
+        </div>
+      )}
 
       <div className="withdraw-small-note">
         <FiInfo />
