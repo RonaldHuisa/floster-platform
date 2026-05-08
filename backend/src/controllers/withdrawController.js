@@ -4,6 +4,13 @@ const pool = require("../config/db");
 const WITHDRAW_FEE_PERCENT = 8;
 const MIN_WITHDRAW_USDT = 1;
 
+const WITHDRAW_INVITE_POLICY = {
+    requiredActiveInvites: 5,
+    vip1StartWithdrawalNumber: 12,
+    vip2PlusStartWithdrawalNumber: 6,
+    reductionPercent: 75,
+};
+
 function isValidBep20Address(address) {
     return /^0x[a-fA-F0-9]{40}$/.test(address);
 }
@@ -11,6 +18,119 @@ function isValidBep20Address(address) {
 function toNumber(value) {
     return Number(value || 0);
 }
+
+function daysSince(dateValue) {
+    if (!dateValue) return 0;
+
+    const timestamp = new Date(dateValue).getTime();
+
+    if (!Number.isFinite(timestamp)) return 0;
+
+    return Math.floor((Date.now() - timestamp) / (1000 * 60 * 60 * 24));
+}
+
+async function getActiveDirectInvitesCount(client, userId) {
+    const result = await client.query(
+        `
+        SELECT COUNT(DISTINCT inv.id)::int AS active_direct_invites
+        FROM users inv
+        WHERE inv.referred_by_id = $1
+        AND EXISTS (
+            SELECT 1
+            FROM vip_purchases vp
+            WHERE vp.user_id = inv.id
+              AND vp.status = 'active'
+              AND vp.expires_at > NOW()
+        )
+        `,
+        [userId]
+    );
+
+    return Number(result.rows[0]?.active_direct_invites || 0);
+}
+
+async function getWithdrawalHistoryCount(client, userId) {
+    const result = await client.query(
+        `
+        SELECT COUNT(*)::int AS withdrawal_count
+        FROM withdrawals
+        WHERE user_id = $1
+          AND status IN ('pending', 'approved', 'paid')
+        `,
+        [userId]
+    );
+
+    return Number(result.rows[0]?.withdrawal_count || 0);
+}
+
+function buildWithdrawInvitePolicy({
+    activeVipLevel,
+    firstVipPurchasedAt,
+    activeDirectInvites,
+    previousWithdrawalCount,
+}) {
+    const vipLevel = Number(activeVipLevel || 0);
+    const nextWithdrawalNumber = Number(previousWithdrawalCount || 0) + 1;
+    const vipAgeDays = daysSince(firstVipPurchasedAt);
+
+    const isVipEligibleForPolicy = vipLevel >= 1;
+
+    const startWithdrawalNumber =
+        vipLevel === 1
+            ? WITHDRAW_INVITE_POLICY.vip1StartWithdrawalNumber
+            : WITHDRAW_INVITE_POLICY.vip2PlusStartWithdrawalNumber;
+
+    const hasEnoughActiveInvites =
+        Number(activeDirectInvites || 0) >= WITHDRAW_INVITE_POLICY.requiredActiveInvites;
+
+    const reachedWithdrawalLimit =
+        isVipEligibleForPolicy && nextWithdrawalNumber >= startWithdrawalNumber;
+
+    const applies =
+        isVipEligibleForPolicy &&
+        reachedWithdrawalLimit &&
+        !hasEnoughActiveInvites;
+
+    return {
+        applies,
+        requiredActiveInvites: WITHDRAW_INVITE_POLICY.requiredActiveInvites,
+        activeDirectInvites: Number(activeDirectInvites || 0),
+        startWithdrawalNumber,
+        vip1StartWithdrawalNumber: WITHDRAW_INVITE_POLICY.vip1StartWithdrawalNumber,
+        vip2PlusStartWithdrawalNumber: WITHDRAW_INVITE_POLICY.vip2PlusStartWithdrawalNumber,
+        nextWithdrawalNumber,
+        previousWithdrawalCount: Number(previousWithdrawalCount || 0),
+        reductionPercent: WITHDRAW_INVITE_POLICY.reductionPercent,
+        activeVipLevel: vipLevel,
+        vipAgeDays,
+        isVipEligibleForPolicy,
+        hasEnoughActiveInvites,
+        reachedWithdrawalLimit,
+        message: applies
+            ? `Actualmente este retiro tiene una reducción del ${WITHDRAW_INVITE_POLICY.reductionPercent}%. Invita ${WITHDRAW_INVITE_POLICY.requiredActiveInvites} personas activas más y se quitará esta restricción. Podrás retirar el 100% con normalidad.`
+            : "",
+    };
+}
+
+function applyWithdrawInvitePolicy(amountToReceiveBeforePolicy, policy) {
+    const baseAmount = Number(amountToReceiveBeforePolicy || 0);
+
+    if (!policy?.applies) {
+        return {
+            policyReductionAmount: 0,
+            amountToReceive: baseAmount,
+        };
+    }
+
+    const policyReductionAmount =
+        baseAmount * (Number(policy.reductionPercent || 0) / 100);
+
+    return {
+        policyReductionAmount,
+        amountToReceive: baseAmount - policyReductionAmount,
+    };
+}
+
 
 async function getCurrentWithdrawPeriod(client) {
     const result = await client.query(`
@@ -60,20 +180,26 @@ async function getWithdrawInfo(req, res) {
 
         const result = await pool.query(
             `
-      SELECT 
-        u.id, 
-        u.withdrawable_usdt, 
-        u.withdrawal_address_bep20,
-        EXISTS (
-          SELECT 1
-          FROM vip_purchases vp
-          WHERE vp.user_id = u.id
-            AND vp.status = 'active'
-            AND vp.expires_at > NOW()
-        ) AS has_active_vip
-      FROM users u
-      WHERE u.id = $1
-      `,
+            SELECT 
+                u.id, 
+                u.withdrawable_usdt, 
+                u.withdrawal_address_bep20,
+                COALESCE((
+                    SELECT MAX(vp.level)
+                    FROM vip_purchases vp
+                    WHERE vp.user_id = u.id
+                      AND vp.status = 'active'
+                      AND vp.expires_at > NOW()
+                ), 0) AS active_vip_level,
+                (
+                    SELECT MIN(vp.purchased_at)
+                    FROM vip_purchases vp
+                    WHERE vp.user_id = u.id
+                      AND vp.status IN ('active', 'completed', 'expired')
+                ) AS first_vip_purchased_at
+            FROM users u
+            WHERE u.id = $1
+            `,
             [userId]
         );
 
@@ -85,6 +211,18 @@ async function getWithdrawInfo(req, res) {
 
         const user = result.rows[0];
 
+        const activeDirectInvites = await getActiveDirectInvitesCount(pool, userId);
+        const previousWithdrawalCount = await getWithdrawalHistoryCount(pool, userId);
+
+        const withdrawalPolicy = buildWithdrawInvitePolicy({
+            activeVipLevel: user.active_vip_level,
+            firstVipPurchasedAt: user.first_vip_purchased_at,
+            activeDirectInvites,
+            previousWithdrawalCount,
+        });
+
+        const hasActiveVip = Number(user.active_vip_level || 0) > 0;
+
         return res.json({
             available: user.withdrawable_usdt || "0",
             network: "BEP20-USDT",
@@ -92,10 +230,12 @@ async function getWithdrawInfo(req, res) {
             minWithdraw: MIN_WITHDRAW_USDT,
             withdrawalAddress: user.withdrawal_address_bep20,
             addressLocked: Boolean(user.withdrawal_address_bep20),
-            canWithdraw: Boolean(user.has_active_vip),
-            hasActiveVip: Boolean(user.has_active_vip),
+            canWithdraw: hasActiveVip,
+            hasActiveVip,
+            activeVipLevel: Number(user.active_vip_level || 0),
             withdrawRequirementMessage:
                 "Debes tener un VIP activo para solicitar retiros.",
+            withdrawalPolicy,
         });
     } catch (error) {
         console.error("GET WITHDRAW INFO ERROR:", error);
@@ -167,13 +307,19 @@ async function createWithdrawRequest(req, res) {
                 u.password_hash AS password,
                 u.withdrawable_usdt, 
                 u.withdrawal_address_bep20,
-                EXISTS (
-                    SELECT 1
+                COALESCE((
+                    SELECT MAX(vp.level)
                     FROM vip_purchases vp
                     WHERE vp.user_id = u.id
                       AND vp.status = 'active'
                       AND vp.expires_at > NOW()
-                ) AS has_active_vip
+                ), 0) AS active_vip_level,
+                (
+                    SELECT MIN(vp.purchased_at)
+                    FROM vip_purchases vp
+                    WHERE vp.user_id = u.id
+                      AND vp.status IN ('active', 'completed', 'expired')
+                ) AS first_vip_purchased_at
             FROM users u
             WHERE u.id = $1
             FOR UPDATE
@@ -190,7 +336,7 @@ async function createWithdrawRequest(req, res) {
 
         const user = userResult.rows[0];
 
-        if (!user.has_active_vip) {
+        if (Number(user.active_vip_level || 0) <= 0) {
             await client.query("ROLLBACK");
 
             return res.status(400).json({
@@ -216,6 +362,16 @@ async function createWithdrawRequest(req, res) {
             });
         }
 
+        const activeDirectInvites = await getActiveDirectInvitesCount(client, userId);
+        const previousWithdrawalCount = await getWithdrawalHistoryCount(client, userId);
+
+        const withdrawalPolicy = buildWithdrawInvitePolicy({
+            activeVipLevel: user.active_vip_level,
+            firstVipPurchasedAt: user.first_vip_purchased_at,
+            activeDirectInvites,
+            previousWithdrawalCount,
+        });
+
         const savedAddress = user.withdrawal_address_bep20;
 
         if (
@@ -229,7 +385,13 @@ async function createWithdrawRequest(req, res) {
         }
 
         const feeAmount = amountNumber * (WITHDRAW_FEE_PERCENT / 100);
-        const amountToReceive = amountNumber - feeAmount;
+        const amountToReceiveBeforePolicy = amountNumber - feeAmount;
+        const policyResult = applyWithdrawInvitePolicy(
+            amountToReceiveBeforePolicy,
+            withdrawalPolicy
+        );
+        const policyReductionAmount = policyResult.policyReductionAmount;
+        const amountToReceive = policyResult.amountToReceive;
 
         if (!savedAddress) {
             await client.query(
@@ -314,6 +476,15 @@ async function createWithdrawRequest(req, res) {
                     amount_requested: amountNumber,
                     fee_percent: WITHDRAW_FEE_PERCENT,
                     fee_amount: feeAmount,
+                    policy_reduction_percent: withdrawalPolicy.applies
+                        ? withdrawalPolicy.reductionPercent
+                        : 0,
+                    policy_reduction_amount: policyReductionAmount,
+                    active_direct_invites: withdrawalPolicy.activeDirectInvites,
+                    required_active_invites: withdrawalPolicy.requiredActiveInvites,
+                    next_withdrawal_number: withdrawalPolicy.nextWithdrawalNumber,
+                    active_vip_level: withdrawalPolicy.activeVipLevel,
+                    amount_to_receive_before_policy: amountToReceiveBeforePolicy,
                     amount_to_receive: amountToReceive,
                 }),
                 "pending",
@@ -336,6 +507,12 @@ async function createWithdrawRequest(req, res) {
             withdrawal: withdrawalResult.rows[0],
             currentWithdrawable: newBalanceResult.rows[0].withdrawable_usdt,
             withdrawalAddress: newBalanceResult.rows[0].withdrawal_address_bep20,
+            withdrawalPolicy: {
+                ...withdrawalPolicy,
+                policyReductionAmount,
+                amountToReceiveBeforePolicy,
+                amountToReceive,
+            },
         });
     } catch (error) {
         await client.query("ROLLBACK");
