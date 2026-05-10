@@ -1,17 +1,24 @@
 const pool = require("../config/db");
+const { getPaymentNetwork, listPaymentNetworks } = require("../utils/paymentNetworks");
 
 async function getMyWallet(req, res) {
   try {
     const userId = req.user.userId;
+    const network = getPaymentNetwork(req.query.network || "BEP20-USDT", {
+      deposit: true,
+    });
 
     const walletResult = await pool.query(
       `
       SELECT id, user_id, network, address, public_key, created_at
       FROM wallets
       WHERE user_id = $1
+      ORDER BY 
+        CASE WHEN network = $2 THEN 0 ELSE 1 END,
+        id ASC
       LIMIT 1
       `,
-      [userId]
+      [userId, network.code]
     );
 
     if (walletResult.rows.length === 0) {
@@ -20,13 +27,24 @@ async function getMyWallet(req, res) {
       });
     }
 
+    const wallet = walletResult.rows[0];
+
     return res.json({
-      wallet: walletResult.rows[0],
+      wallet: {
+        ...wallet,
+        network: network.code,
+        asset: network.asset,
+        chain: network.chain,
+        displayName: network.displayName,
+        nativeSymbol: network.nativeSymbol,
+      },
+      supportedNetworks: listPaymentNetworks().filter((item) => item.depositEnabled),
     });
   } catch (error) {
     console.error("GET MY WALLET ERROR:", error);
     return res.status(500).json({
       message: "Error interno al obtener la wallet.",
+      detail: error.message,
     });
   }
 }

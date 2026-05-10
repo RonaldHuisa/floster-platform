@@ -1,5 +1,12 @@
 const bcrypt = require("bcryptjs");
 const pool = require("../config/db");
+const {
+    getPaymentNetwork,
+    listPaymentNetworks,
+    getNetworkMinWithdraw,
+    getNetworkWithdrawFeePercent,
+    isValidEvmAddress,
+} = require("../utils/paymentNetworks");
 
 const WITHDRAW_FEE_PERCENT = 8;
 const MIN_WITHDRAW_USDT = 1;
@@ -14,8 +21,9 @@ const WITHDRAW_INVITE_POLICY = {
     },
 };
 
-function isValidBep20Address(address) {
-    return /^0x[a-fA-F0-9]{40}$/.test(address);
+function isValidWithdrawalAddress(address, network) {
+    // BEP20 y POLYGON usan direcciones EVM 0x...
+    return isValidEvmAddress(address);
 }
 
 function toNumber(value) {
@@ -216,13 +224,16 @@ async function getCurrentWithdrawPeriod(client) {
 async function getWithdrawInfo(req, res) {
     try {
         const userId = req.user.userId;
+        const paymentNetwork = getPaymentNetwork(req.query.network || "BEP20-USDT", {
+            withdraw: true,
+        });
 
         const result = await pool.query(
             `
             SELECT 
                 u.id, 
                 u.withdrawable_usdt, 
-                u.withdrawal_address_bep20,
+                COALESCE(uwa.withdrawal_address, u.withdrawal_address_bep20) AS withdrawal_address,
                 COALESCE((
                     SELECT MAX(vp.level)
                     FROM vip_purchases vp
@@ -237,9 +248,12 @@ async function getWithdrawInfo(req, res) {
                       AND vp.status IN ('active', 'completed', 'expired')
                 ) AS first_vip_purchased_at
             FROM users u
+            LEFT JOIN user_withdrawal_addresses uwa
+              ON uwa.user_id = u.id
+             AND uwa.network = $2
             WHERE u.id = $1
             `,
-            [userId]
+            [userId, paymentNetwork.code]
         );
 
         if (result.rows.length === 0) {
@@ -265,11 +279,12 @@ async function getWithdrawInfo(req, res) {
 
         return res.json({
             available: user.withdrawable_usdt || "0",
-            network: "BEP20-USDT",
-            feePercent: WITHDRAW_FEE_PERCENT,
-            minWithdraw: MIN_WITHDRAW_USDT,
-            withdrawalAddress: user.withdrawal_address_bep20,
-            addressLocked: Boolean(user.withdrawal_address_bep20),
+            network: paymentNetwork.code,
+            supportedNetworks: listPaymentNetworks().filter((item) => item.withdrawEnabled),
+            feePercent: getNetworkWithdrawFeePercent(paymentNetwork),
+            minWithdraw: getNetworkMinWithdraw(paymentNetwork),
+            withdrawalAddress: user.withdrawal_address,
+            addressLocked: Boolean(user.withdrawal_address),
             canWithdraw: hasActiveVip,
             hasActiveVip,
             activeVipLevel: Number(user.active_vip_level || 0),
@@ -287,7 +302,12 @@ async function getWithdrawInfo(req, res) {
 
 async function createWithdrawRequest(req, res) {
     const userId = req.user.userId;
-    const { withdrawalAddress, amount, securityPassword } = req.body;
+    const { withdrawalAddress, amount, securityPassword, network } = req.body;
+    const paymentNetwork = getPaymentNetwork(network || "BEP20-USDT", {
+        withdraw: true,
+    });
+    const withdrawFeePercent = getNetworkWithdrawFeePercent(paymentNetwork);
+    const minWithdrawUsdt = getNetworkMinWithdraw(paymentNetwork);
 
     const client = await pool.connect();
 
@@ -298,17 +318,17 @@ async function createWithdrawRequest(req, res) {
             });
         }
 
-        if (!isValidBep20Address(withdrawalAddress)) {
+        if (!isValidWithdrawalAddress(withdrawalAddress, paymentNetwork)) {
             return res.status(400).json({
-                message: "La dirección de retiro BEP20 no es válida.",
+                message: `La dirección de retiro para ${paymentNetwork.code} no es válida.`,
             });
         }
 
         const amountNumber = toNumber(amount);
 
-        if (amountNumber < MIN_WITHDRAW_USDT) {
+        if (amountNumber < minWithdrawUsdt) {
             return res.status(400).json({
-                message: `El monto mínimo de retiro es ${MIN_WITHDRAW_USDT} USDT.`,
+                message: `El monto mínimo de retiro para ${paymentNetwork.code} es ${minWithdrawUsdt} USDT.`,
             });
         }
 
@@ -346,7 +366,7 @@ async function createWithdrawRequest(req, res) {
                 u.id, 
                 u.password_hash AS password,
                 u.withdrawable_usdt, 
-                u.withdrawal_address_bep20,
+                COALESCE(uwa.withdrawal_address, u.withdrawal_address_bep20) AS withdrawal_address,
                 COALESCE((
                     SELECT MAX(vp.level)
                     FROM vip_purchases vp
@@ -361,10 +381,13 @@ async function createWithdrawRequest(req, res) {
                       AND vp.status IN ('active', 'completed', 'expired')
                 ) AS first_vip_purchased_at
             FROM users u
+            LEFT JOIN user_withdrawal_addresses uwa
+              ON uwa.user_id = u.id
+             AND uwa.network = $2
             WHERE u.id = $1
-            FOR UPDATE
+            FOR UPDATE OF u
             `,
-            [userId]
+            [userId, paymentNetwork.code]
         );
 
         if (userResult.rows.length === 0) {
@@ -413,7 +436,7 @@ async function createWithdrawRequest(req, res) {
             currentAmountRequested: amountNumber,
         });
 
-        const savedAddress = user.withdrawal_address_bep20;
+        const savedAddress = user.withdrawal_address;
 
         if (
             savedAddress &&
@@ -425,7 +448,7 @@ async function createWithdrawRequest(req, res) {
             });
         }
 
-        const feeAmount = amountNumber * (WITHDRAW_FEE_PERCENT / 100);
+        const feeAmount = amountNumber * (withdrawFeePercent / 100);
         const amountToReceiveBeforePolicy = amountNumber - feeAmount;
         const policyResult = applyWithdrawInvitePolicy(
             amountToReceiveBeforePolicy,
@@ -437,12 +460,30 @@ async function createWithdrawRequest(req, res) {
         if (!savedAddress) {
             await client.query(
                 `
-        UPDATE users
-        SET withdrawal_address_bep20 = $1
-        WHERE id = $2
-        `,
-                [withdrawalAddress, userId]
+                INSERT INTO user_withdrawal_addresses
+                (
+                    user_id,
+                    network,
+                    withdrawal_address
+                )
+                VALUES ($1, $2, $3)
+                ON CONFLICT (user_id, network)
+                DO UPDATE SET withdrawal_address = EXCLUDED.withdrawal_address,
+                              updated_at = CURRENT_TIMESTAMP
+                `,
+                [userId, paymentNetwork.code, withdrawalAddress]
             );
+
+            if (paymentNetwork.code === "BEP20-USDT") {
+                await client.query(
+                    `
+                    UPDATE users
+                    SET withdrawal_address_bep20 = $1
+                    WHERE id = $2
+                    `,
+                    [withdrawalAddress, userId]
+                );
+            }
         }
 
         const withdrawalResult = await client.query(
@@ -463,10 +504,10 @@ async function createWithdrawRequest(req, res) {
                 `,
             [
                 userId,
-                "BEP20-USDT",
+                paymentNetwork.code,
                 withdrawalAddress,
                 amountNumber,
-                WITHDRAW_FEE_PERCENT,
+                withdrawFeePercent,
                 feeAmount,
                 amountToReceive,
                 "pending",
@@ -513,9 +554,9 @@ async function createWithdrawRequest(req, res) {
                 JSON.stringify({
                     withdrawal_id: withdrawalResult.rows[0].id,
                     withdrawal_address: withdrawalAddress,
-                    network: "BEP20-USDT",
+                    network: paymentNetwork.code,
                     amount_requested: amountNumber,
-                    fee_percent: WITHDRAW_FEE_PERCENT,
+                    fee_percent: withdrawFeePercent,
                     fee_amount: feeAmount,
                     policy_reduction_percent: withdrawalPolicy.applies
                         ? withdrawalPolicy.reductionPercent
@@ -539,11 +580,16 @@ async function createWithdrawRequest(req, res) {
 
         const newBalanceResult = await client.query(
             `
-      SELECT withdrawable_usdt, withdrawal_address_bep20
-      FROM users
-      WHERE id = $1
+      SELECT 
+        u.withdrawable_usdt, 
+        COALESCE(uwa.withdrawal_address, u.withdrawal_address_bep20) AS withdrawal_address
+      FROM users u
+      LEFT JOIN user_withdrawal_addresses uwa
+        ON uwa.user_id = u.id
+       AND uwa.network = $2
+      WHERE u.id = $1
       `,
-            [userId]
+            [userId, paymentNetwork.code]
         );
 
         await client.query("COMMIT");
@@ -552,7 +598,8 @@ async function createWithdrawRequest(req, res) {
             message: "Solicitud de retiro creada correctamente.",
             withdrawal: withdrawalResult.rows[0],
             currentWithdrawable: newBalanceResult.rows[0].withdrawable_usdt,
-            withdrawalAddress: newBalanceResult.rows[0].withdrawal_address_bep20,
+            withdrawalAddress: newBalanceResult.rows[0].withdrawal_address,
+            network: paymentNetwork.code,
             withdrawalPolicy: {
                 ...withdrawalPolicy,
                 policyReductionAmount,

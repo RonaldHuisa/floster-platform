@@ -11,7 +11,6 @@ const adminStatusRoutes = require("./routes/adminStatusRoutes");
 const referralRoutes = require("./routes/referralRoutes");
 const vipRoutes = require("./routes/vipRoutes");
 const taskRoutes = require("./routes/taskRoutes");
-const { sweepAllPendingDeposits } = require("./services/sweepService");
 
 
 const app = express();
@@ -59,23 +58,5 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Backend corriendo en http://localhost:${PORT}`);
 
-  if (process.env.ENABLE_SWEEP_WORKER !== "false") {
-    const intervalMs = Number(process.env.SWEEP_WORKER_INTERVAL_MS || 60000);
-
-    console.log(`Sweep worker activo cada ${intervalMs} ms.`);
-
-    setInterval(async () => {
-      try {
-        const results = await sweepAllPendingDeposits(
-          Number(process.env.SWEEP_WORKER_LIMIT || 25)
-        );
-
-        if (results.length > 0) {
-          console.log("SWEEP WORKER RESULT:", JSON.stringify(results, null, 2));
-        }
-      } catch (error) {
-        console.error("SWEEP WORKER ERROR:", error.message);
-      }
-    }, intervalMs);
-  }
+  console.log("Sweep automático desactivado. El movimiento de fondos se ejecuta solo con el botón Recarga completa.");
 });

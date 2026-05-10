@@ -1,74 +1,105 @@
 const { ethers } = require("ethers");
 require("dotenv").config();
 
+const {
+  getPaymentNetwork,
+  getNetworkRpcUrl,
+  getNetworkTokenContract,
+  getNetworkTokenDecimals,
+  isValidEvmAddress,
+} = require("../utils/paymentNetworks");
+
 const ERC20_ABI = [
   "function transfer(address to, uint256 amount) returns (bool)",
   "function balanceOf(address account) view returns (uint256)",
 ];
 
-const provider = new ethers.JsonRpcProvider(process.env.BSC_RPC_URL);
-
-const USDT_CONTRACT = process.env.BSC_USDT_CONTRACT;
-const USDT_DECIMALS = Number(process.env.BSC_USDT_DECIMALS || 18);
-const HOT_WALLET_PRIVATE_KEY = process.env.WITHDRAW_HOT_WALLET_PRIVATE_KEY;
-
-function requireConfig() {
-  if (!process.env.BSC_RPC_URL) {
-    throw new Error("Falta BSC_RPC_URL en .env");
+function getWithdrawHotWalletPrivateKey(network) {
+  if (network.code === "POLYGON-USDT") {
+    return (
+      process.env.WITHDRAW_POLYGON_HOT_WALLET_PRIVATE_KEY ||
+      process.env.PLATFORM_POLYGON_PRIVATE_KEY ||
+      process.env.WITHDRAW_HOT_WALLET_PRIVATE_KEY
+    );
   }
 
-  if (!USDT_CONTRACT) {
-    throw new Error("Falta BSC_USDT_CONTRACT en .env");
-  }
-
-  if (!HOT_WALLET_PRIVATE_KEY) {
-    throw new Error("Falta WITHDRAW_HOT_WALLET_PRIVATE_KEY en .env");
-  }
+  return (
+    process.env.WITHDRAW_BEP20_HOT_WALLET_PRIVATE_KEY ||
+    process.env.WITHDRAW_HOT_WALLET_PRIVATE_KEY
+  );
 }
 
-function isValidBep20Address(address) {
-  return /^0x[a-fA-F0-9]{40}$/.test(address);
-}
+function requireWithdrawConfig(network) {
+  const privateKey = getWithdrawHotWalletPrivateKey(network);
 
-async function sendUsdtWithdrawal(toAddress, amountUsdt) {
-  requireConfig();
+  if (!privateKey) {
+    if (network.code === "POLYGON-USDT") {
+      throw new Error(
+        "Falta WITHDRAW_POLYGON_HOT_WALLET_PRIVATE_KEY o PLATFORM_POLYGON_PRIVATE_KEY en .env"
+      );
+    }
 
-  if (!isValidBep20Address(toAddress)) {
-    throw new Error("Dirección BEP20 inválida.");
+    throw new Error(
+      "Falta WITHDRAW_BEP20_HOT_WALLET_PRIVATE_KEY o WITHDRAW_HOT_WALLET_PRIVATE_KEY en .env"
+    );
   }
 
-  const signer = new ethers.Wallet(HOT_WALLET_PRIVATE_KEY, provider);
+  return privateKey;
+}
 
-  const usdtContract = new ethers.Contract(
-    USDT_CONTRACT,
+async function sendUsdtWithdrawal(toAddress, amountUsdt, networkCode = "BEP20-USDT") {
+  const network = getPaymentNetwork(networkCode, { withdraw: true });
+  const hotWalletPrivateKey = requireWithdrawConfig(network);
+
+  if (!isValidEvmAddress(toAddress)) {
+    throw new Error(`Dirección inválida para ${network.code}.`);
+  }
+
+  const provider = new ethers.JsonRpcProvider(getNetworkRpcUrl(network));
+  const signer = new ethers.Wallet(hotWalletPrivateKey, provider);
+
+  const tokenContract = new ethers.Contract(
+    getNetworkTokenContract(network),
     ERC20_ABI,
     signer
   );
 
-  const amountRaw = ethers.parseUnits(String(amountUsdt), USDT_DECIMALS);
+  const tokenDecimals = getNetworkTokenDecimals(network);
+  const amountRaw = ethers.parseUnits(String(amountUsdt), tokenDecimals);
 
   const hotWalletAddress = await signer.getAddress();
 
-  const usdtBalance = await usdtContract.balanceOf(hotWalletAddress);
+  const contractCode = await provider.getCode(getNetworkTokenContract(network));
 
-  if (usdtBalance < amountRaw) {
-    throw new Error("La wallet hot no tiene suficiente USDT.");
+  if (!contractCode || contractCode === "0x") {
+    throw new Error(
+      `El contrato USDT de ${network.code} no existe en la red configurada. Revisa RPC y contrato.`
+    );
   }
 
-  const bnbBalance = await provider.getBalance(hotWalletAddress);
+  const tokenBalance = await tokenContract.balanceOf(hotWalletAddress);
 
-  if (bnbBalance <= 0n) {
-    throw new Error("La wallet hot no tiene BNB para pagar gas.");
+  if (tokenBalance < amountRaw) {
+    throw new Error(`La wallet hot no tiene suficiente USDT en ${network.code}.`);
   }
 
-  const tx = await usdtContract.transfer(toAddress, amountRaw);
+  const nativeBalance = await provider.getBalance(hotWalletAddress);
 
-  console.log("WITHDRAW USDT TX:", tx.hash);
+  if (nativeBalance <= 0n) {
+    throw new Error(
+      `La wallet hot no tiene ${network.nativeSymbol} para pagar gas en ${network.code}.`
+    );
+  }
+
+  const tx = await tokenContract.transfer(toAddress, amountRaw);
+
+  console.log(`WITHDRAW USDT TX ${network.code}:`, tx.hash);
 
   const receipt = await tx.wait(1);
 
   return {
     txHash: receipt.hash,
+    network: network.code,
     from: hotWalletAddress,
     to: toAddress,
     amountUsdt,

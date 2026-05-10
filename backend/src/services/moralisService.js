@@ -1,17 +1,16 @@
 const { ethers } = require("ethers");
 require("dotenv").config();
 
+const {
+  getPaymentNetwork,
+  getNetworkTokenContract,
+  getNetworkTokenDecimals,
+} = require("../utils/paymentNetworks");
+
 const MORALIS_API_KEY = process.env.MORALIS_API_KEY;
-const BSC_CHAIN = process.env.BSC_CHAIN || "bsc";
-const USDT_CONTRACT = process.env.BSC_USDT_CONTRACT;
-const USDT_DECIMALS = Number(process.env.BSC_USDT_DECIMALS || 18);
 
 if (!MORALIS_API_KEY) {
   throw new Error("Falta MORALIS_API_KEY en el archivo .env");
-}
-
-if (!USDT_CONTRACT) {
-  throw new Error("Falta BSC_USDT_CONTRACT en el archivo .env");
 }
 
 function normalizeAddress(address) {
@@ -22,20 +21,24 @@ function formatTokenAmount(rawValue, decimals) {
   return ethers.formatUnits(rawValue.toString(), decimals);
 }
 
-async function getBep20UsdtTransfers(walletAddress, options = {}) {
+async function getEvmUsdtTransfers(walletAddress, networkCode = "BEP20-USDT", options = {}) {
+  const network = getPaymentNetwork(networkCode, { deposit: true });
+  const tokenContract = getNetworkTokenContract(network);
+  const tokenDecimals = getNetworkTokenDecimals(network);
+
   const transfers = [];
   let cursor = null;
 
   const walletLower = normalizeAddress(walletAddress);
-  const contractLower = normalizeAddress(USDT_CONTRACT);
+  const contractLower = normalizeAddress(tokenContract);
 
   do {
     const url = new URL(
       `https://deep-index.moralis.io/api/v2.2/${walletAddress}/erc20/transfers`
     );
 
-    url.searchParams.set("chain", BSC_CHAIN);
-    url.searchParams.append("contract_addresses", USDT_CONTRACT);
+    url.searchParams.set("chain", network.moralisChain);
+    url.searchParams.append("contract_addresses", tokenContract);
     url.searchParams.set("limit", "100");
     url.searchParams.set("order", "ASC");
 
@@ -61,7 +64,7 @@ async function getBep20UsdtTransfers(walletAddress, options = {}) {
 
     if (!response.ok) {
       console.error("MORALIS ERROR:", data);
-      throw new Error(data.message || "Error consultando Moralis.");
+      throw new Error(data.message || `Error consultando Moralis en ${network.code}.`);
     }
 
     const result = Array.isArray(data.result) ? data.result : [];
@@ -73,7 +76,7 @@ async function getBep20UsdtTransfers(walletAddress, options = {}) {
       if (toAddress !== walletLower) continue;
       if (contractAddress !== contractLower) continue;
 
-      const decimals = Number(tx.token_decimals || USDT_DECIMALS);
+      const decimals = Number(tx.token_decimals || tokenDecimals);
       const amountUsdt = formatTokenAmount(tx.value, decimals);
 
       transfers.push({
@@ -87,6 +90,7 @@ async function getBep20UsdtTransfers(walletAddress, options = {}) {
         toAddress: tx.to_address,
         blockTimestamp: tx.block_timestamp,
         tokenDecimals: decimals,
+        network: network.code,
       });
     }
 
@@ -96,6 +100,12 @@ async function getBep20UsdtTransfers(walletAddress, options = {}) {
   return transfers;
 }
 
+// Compatibilidad con el código anterior
+async function getBep20UsdtTransfers(walletAddress, options = {}) {
+  return getEvmUsdtTransfers(walletAddress, "BEP20-USDT", options);
+}
+
 module.exports = {
+  getEvmUsdtTransfers,
   getBep20UsdtTransfers,
 };

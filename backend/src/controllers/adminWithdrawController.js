@@ -111,6 +111,7 @@ async function approveWithdrawal(req, res) {
       SELECT
         id,
         user_id,
+        network,
         withdrawal_address,
         amount_to_receive,
         status
@@ -141,7 +142,8 @@ async function approveWithdrawal(req, res) {
 
         const payment = await sendUsdtWithdrawal(
             withdrawal.withdrawal_address,
-            withdrawal.amount_to_receive
+            withdrawal.amount_to_receive,
+            withdrawal.network || "BEP20-USDT"
         );
 
         await client.query("BEGIN");
@@ -204,7 +206,7 @@ async function approveWithdrawal(req, res) {
                     tx_hash: payment.txHash,
                     amount_to_receive: withdrawal.amount_to_receive,
                     withdrawal_address: withdrawal.withdrawal_address,
-                    network: "BEP20-USDT",
+                    network: withdrawal.network || payment.network || "BEP20-USDT",
                 }),
                 "completed",
             ]

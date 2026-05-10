@@ -1,6 +1,14 @@
 const { ethers } = require("ethers");
 const pool = require("../config/db");
 const { decryptText } = require("../utils/cryptoUtil");
+const {
+  getPaymentNetwork,
+  getNetworkRpcUrl,
+  getNetworkTokenContract,
+  getNetworkCollectionWallet,
+  getNetworkPlatformPrivateKey,
+  getNetworkTopupBuffer,
+} = require("../utils/paymentNetworks");
 require("dotenv").config();
 
 const ERC20_ABI = [
@@ -8,106 +16,88 @@ const ERC20_ABI = [
   "function transfer(address to, uint256 amount) returns (bool)",
 ];
 
-const provider = new ethers.JsonRpcProvider(process.env.BSC_RPC_URL);
-
-const USDT_CONTRACT = process.env.BSC_USDT_CONTRACT;
-const COLLECTION_USDT_WALLET = process.env.COLLECTION_USDT_WALLET;
-const PLATFORM_BNB_PRIVATE_KEY = process.env.PLATFORM_BNB_PRIVATE_KEY;
-
-function requireEnv() {
-  if (!process.env.BSC_RPC_URL) {
-    throw new Error("Falta BSC_RPC_URL en .env");
-  }
-
-  if (!USDT_CONTRACT) {
-    throw new Error("Falta BSC_USDT_CONTRACT en .env");
-  }
-
-  if (!COLLECTION_USDT_WALLET) {
-    throw new Error("Falta COLLECTION_USDT_WALLET en .env");
-  }
-
-  if (!PLATFORM_BNB_PRIVATE_KEY) {
-    throw new Error("Falta PLATFORM_BNB_PRIVATE_KEY en .env");
-  }
-}
-
 function sumRawAmounts(deposits) {
   return deposits.reduce((total, deposit) => {
     return total + BigInt(deposit.amount_raw);
   }, 0n);
 }
 
-async function getGasPrice() {
+async function getGasPrice(provider, network) {
   const feeData = await provider.getFeeData();
 
   if (!feeData.gasPrice) {
-    throw new Error("No se pudo obtener gasPrice de BSC.");
+    throw new Error(`No se pudo obtener gasPrice en ${network.code}.`);
   }
 
   return feeData.gasPrice;
 }
 
-async function ensureUserHasBNB(userWalletAddress, userSigner, usdtContract, amountRaw) {
-  const platformSigner = new ethers.Wallet(PLATFORM_BNB_PRIVATE_KEY, provider);
+async function ensureUserHasNativeGas({
+  provider,
+  network,
+  userWalletAddress,
+  userSigner,
+  tokenContract,
+  amountRaw,
+  collectionWallet,
+}) {
+  const platformSigner = new ethers.Wallet(
+    getNetworkPlatformPrivateKey(network),
+    provider
+  );
 
-  const bnbBalance = await provider.getBalance(userWalletAddress);
-  const platformBnbBalance = await provider.getBalance(platformSigner.address);
-  const gasPrice = await getGasPrice();
+  const nativeBalance = await provider.getBalance(userWalletAddress);
+  const gasPrice = await getGasPrice(provider, network);
 
   let gasLimit;
 
   try {
-    gasLimit = await usdtContract
+    gasLimit = await tokenContract
       .connect(userSigner)
       .transfer
-      .estimateGas(COLLECTION_USDT_WALLET, amountRaw);
+      .estimateGas(collectionWallet, amountRaw);
   } catch (error) {
-    console.log("No se pudo estimar gas, usando fallback 100000.", error.message);
+    console.log(`No se pudo estimar gas en ${network.code}, usando fallback 100000.`);
     gasLimit = 100000n;
   }
 
-  const buffer = ethers.parseEther(process.env.BNB_TOPUP_BUFFER || "0.00005");
-  const requiredBNB = gasLimit * gasPrice + buffer;
+  const requiredNative = gasLimit * gasPrice + getNetworkTopupBuffer(network);
 
-  if (bnbBalance >= requiredBNB) {
+  if (nativeBalance >= requiredNative) {
     return {
       sent: false,
       txHash: null,
-      requiredBNB: ethers.formatEther(requiredBNB),
-      currentBNB: ethers.formatEther(bnbBalance),
-      platformBNB: ethers.formatEther(platformBnbBalance),
+      requiredNative: ethers.formatEther(requiredNative),
+      currentNative: ethers.formatEther(nativeBalance),
+      nativeSymbol: network.nativeSymbol,
     };
   }
 
-  const amountToSend = requiredBNB - bnbBalance;
-
-  if (platformBnbBalance < amountToSend) {
-    throw new Error(
-      `La wallet de gas no tiene BNB suficiente. Necesita ${ethers.formatEther(amountToSend)} BNB y tiene ${ethers.formatEther(platformBnbBalance)} BNB.`
-    );
-  }
+  const amountToSend = requiredNative - nativeBalance;
 
   const tx = await platformSigner.sendTransaction({
     to: userWalletAddress,
     value: amountToSend,
   });
 
-  console.log("Enviando BNB al usuario:", tx.hash);
+  console.log(`Enviando ${network.nativeSymbol} al usuario:`, tx.hash);
 
   const receipt = await tx.wait(1);
 
   return {
     sent: true,
     txHash: receipt.hash,
-    requiredBNB: ethers.formatEther(requiredBNB),
-    sentBNB: ethers.formatEther(amountToSend),
-    platformBNB: ethers.formatEther(platformBnbBalance),
+    requiredNative: ethers.formatEther(requiredNative),
+    sentNative: ethers.formatEther(amountToSend),
+    nativeSymbol: network.nativeSymbol,
   };
 }
 
-async function sweepUserPendingDeposits(userId) {
-  requireEnv();
+async function sweepUserPendingDeposits(userId, networkCode = "BEP20-USDT") {
+  const network = getPaymentNetwork(networkCode, { deposit: true });
+  const provider = new ethers.JsonRpcProvider(getNetworkRpcUrl(network));
+  const tokenContractAddress = getNetworkTokenContract(network);
+  const collectionWallet = getNetworkCollectionWallet(network);
 
   const client = await pool.connect();
 
@@ -117,9 +107,12 @@ async function sweepUserPendingDeposits(userId) {
       SELECT id, address, private_key_encrypted
       FROM wallets
       WHERE user_id = $1
+      ORDER BY 
+        CASE WHEN network = $2 THEN 0 ELSE 1 END,
+        id ASC
       LIMIT 1
       `,
-      [userId]
+      [userId, network.code]
     );
 
     if (walletResult.rows.length === 0) {
@@ -136,11 +129,12 @@ async function sweepUserPendingDeposits(userId) {
       SELECT id, amount_raw, amount_usdt
       FROM deposits
       WHERE user_id = $1
-      AND wallet_id = $2
-      AND sweep_status IN ('pending', 'failed')
+        AND wallet_id = $2
+        AND network = $3
+        AND sweep_status = 'pending'
       ORDER BY id ASC
       `,
-      [userId, wallet.id]
+      [userId, wallet.id, network.code]
     );
 
     const pendingDeposits = depositsResult.rows;
@@ -148,7 +142,8 @@ async function sweepUserPendingDeposits(userId) {
     if (pendingDeposits.length === 0) {
       return {
         status: "nothing_pending",
-        message: "No hay depósitos pendientes o fallidos para mover.",
+        message: "No hay depósitos pendientes para mover.",
+        network: network.code,
       };
     }
 
@@ -158,44 +153,56 @@ async function sweepUserPendingDeposits(userId) {
       return {
         status: "invalid_amount",
         message: "El monto pendiente es inválido.",
+        network: network.code,
       };
     }
 
     const userPrivateKey = decryptText(wallet.private_key_encrypted);
     const userSigner = new ethers.Wallet(userPrivateKey, provider);
 
-    const usdtContract = new ethers.Contract(
-      USDT_CONTRACT,
+    const tokenContract = new ethers.Contract(
+      tokenContractAddress,
       ERC20_ABI,
       provider
     );
 
-    const userUsdtBalance = await usdtContract.balanceOf(wallet.address);
+    const contractCode = await provider.getCode(tokenContractAddress);
 
-    if (userUsdtBalance < amountRawToSweep) {
+    if (!contractCode || contractCode === "0x") {
+      throw new Error(
+        `El contrato USDT de ${network.code} no existe en la red configurada. Revisa ${network.rpcUrlEnv} y ${network.tokenContractEnv}.`
+      );
+    }
+
+    const userTokenBalance = await tokenContract.balanceOf(wallet.address);
+
+    if (userTokenBalance < amountRawToSweep) {
       return {
         status: "insufficient_usdt",
-        message: "La wallet del usuario todavía no tiene suficiente USDT disponible en blockchain.",
-        walletAddress: wallet.address,
-        walletBalanceRaw: userUsdtBalance.toString(),
+        message: "La wallet del usuario todavía no tiene suficiente USDT disponible.",
+        walletBalanceRaw: userTokenBalance.toString(),
         requiredRaw: amountRawToSweep.toString(),
+        network: network.code,
       };
     }
 
-    const bnbTopup = await ensureUserHasBNB(
-      wallet.address,
+    const nativeTopup = await ensureUserHasNativeGas({
+      provider,
+      network,
+      userWalletAddress: wallet.address,
       userSigner,
-      usdtContract,
-      amountRawToSweep
-    );
+      tokenContract,
+      amountRaw: amountRawToSweep,
+      collectionWallet,
+    });
 
-    const sweepTx = await usdtContract
+    const sweepTx = await tokenContract
       .connect(userSigner)
-      .transfer(COLLECTION_USDT_WALLET, amountRawToSweep, {
+      .transfer(collectionWallet, amountRawToSweep, {
         gasLimit: 100000n,
       });
 
-    console.log("Enviando USDT a wallet central:", sweepTx.hash);
+    console.log(`Enviando USDT ${network.code} a wallet central:`, sweepTx.hash);
 
     const sweepReceipt = await sweepTx.wait(1);
 
@@ -211,17 +218,17 @@ async function sweepUserPendingDeposits(userId) {
         swept_at = CURRENT_TIMESTAMP
       WHERE id = ANY($3::int[])
       `,
-      [bnbTopup.txHash, sweepReceipt.hash, depositIds]
+      [nativeTopup.txHash, sweepReceipt.hash, depositIds]
     );
 
     return {
       status: "swept",
       message: "USDT enviado correctamente a la wallet central.",
+      network: network.code,
       depositsSwept: pendingDeposits.length,
       amountRawSwept: amountRawToSweep.toString(),
-      bnbTopup,
+      nativeTopup,
       sweepTxHash: sweepReceipt.hash,
-      collectionWallet: COLLECTION_USDT_WALLET,
     };
   } catch (error) {
     console.error("SWEEP ERROR:", error);
@@ -231,14 +238,16 @@ async function sweepUserPendingDeposits(userId) {
       UPDATE deposits
       SET sweep_status = 'failed'
       WHERE user_id = $1
-      AND sweep_status IN ('pending', 'failed')
+        AND network = $2
+        AND sweep_status = 'pending'
       `,
-      [userId]
+      [userId, network.code]
     );
 
     return {
       status: "failed",
-      message: "Error al enviar BNB o mover USDT.",
+      network: network.code,
+      message: "Error al enviar gas o mover USDT.",
       detail: error.message,
     };
   } finally {
@@ -246,32 +255,56 @@ async function sweepUserPendingDeposits(userId) {
   }
 }
 
+
 async function sweepAllPendingDeposits(limit = 25) {
-  requireEnv();
+  const client = await pool.connect();
 
-  const result = await pool.query(
-    `
-    SELECT DISTINCT user_id
-    FROM deposits
-    WHERE sweep_status IN ('pending', 'failed')
-    ORDER BY user_id ASC
-    LIMIT $1
-    `,
-    [limit]
-  );
+  try {
+    const result = await client.query(
+      `
+      SELECT DISTINCT
+        d.user_id,
+        d.network
+      FROM deposits d
+      WHERE d.sweep_status = 'pending'
+        AND d.status = 'confirmed'
+      ORDER BY d.user_id ASC, d.network ASC
+      LIMIT $1
+      `,
+      [limit]
+    );
 
-  const results = [];
+    const pendingGroups = result.rows;
+    const results = [];
 
-  for (const row of result.rows) {
-    const sweepResult = await sweepUserPendingDeposits(row.user_id);
-    results.push({
-      userId: row.user_id,
-      ...sweepResult,
-    });
+    for (const item of pendingGroups) {
+      try {
+        const sweepResult = await sweepUserPendingDeposits(
+          item.user_id,
+          item.network || "BEP20-USDT"
+        );
+
+        results.push({
+          userId: item.user_id,
+          network: item.network,
+          ...sweepResult,
+        });
+      } catch (error) {
+        results.push({
+          userId: item.user_id,
+          network: item.network,
+          status: "failed",
+          message: error.message,
+        });
+      }
+    }
+
+    return results;
+  } finally {
+    client.release();
   }
-
-  return results;
 }
+
 
 module.exports = {
   sweepUserPendingDeposits,
