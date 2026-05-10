@@ -67,10 +67,10 @@ export function getWallet() {
 }
 
 
-export async function getMyWalletFromApi() {
+export async function getMyWalletFromApi(network = "BEP20-USDT") {
   const token = localStorage.getItem("token");
 
-  const response = await fetch(`${API_URL}/wallet/me`, {
+  const response = await fetch(`${API_URL}/wallet/me?network=${encodeURIComponent(network)}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -87,7 +87,7 @@ export async function getMyWalletFromApi() {
   return data;
 }
 
-export async function scanMyDeposits() {
+export async function scanMyDeposits(network = "BEP20-USDT") {
   const token = localStorage.getItem("token");
 
   const response = await fetch(`${API_URL}/deposits/scan-me`, {
@@ -96,6 +96,7 @@ export async function scanMyDeposits() {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
+    body: JSON.stringify({ network }),
   });
 
   const data = await response.json();
@@ -107,10 +108,10 @@ export async function scanMyDeposits() {
   return data;
 } 
 
-export async function getWithdrawInfo() {
+export async function getWithdrawInfo(network = "BEP20-USDT") {
   const token = localStorage.getItem("token");
 
-  const response = await fetch(`${API_URL}/withdraw/me`, {
+  const response = await fetch(`${API_URL}/withdraw/me?network=${encodeURIComponent(network)}`, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,

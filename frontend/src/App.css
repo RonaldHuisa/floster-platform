@@ -9796,3 +9796,341 @@ body {
   color: #e11d48 !important;
 }
 
+
+
+/* =========================================================
+   MULTI NETWORK - BEP20 / POLYGON
+========================================================= */
+
+.network-select-panel {
+  padding: 16px !important;
+}
+
+.network-select-title {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  margin-bottom: 12px !important;
+}
+
+.network-select-title strong {
+  color: #001f3f !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+}
+
+.network-select-title span {
+  color: #486489 !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+}
+
+.network-option-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+.network-option-card {
+  min-height: 58px !important;
+  border-radius: 18px !important;
+  border: 1px solid #cfe1f5 !important;
+  background: #f7fbff !important;
+  color: #00224a !important;
+  padding: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  text-align: left !important;
+  cursor: pointer !important;
+}
+
+.network-option-card.active {
+  border-color: #72dfd0 !important;
+  background: #e9fbf8 !important;
+  box-shadow: 0 10px 22px rgba(21, 180, 164, 0.14) !important;
+}
+
+.network-option-icon {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 11px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: #d9f8f3 !important;
+  color: #08a997 !important;
+  font-weight: 900 !important;
+}
+
+.network-option-card strong {
+  display: block !important;
+  font-size: 12.5px !important;
+  font-weight: 900 !important;
+}
+
+.network-option-card small {
+  display: block !important;
+  margin-top: 2px !important;
+  color: #6c7f9e !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+}
+
+.multi-network-list {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+
+.multi-network-list .withdraw-network {
+  justify-content: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  border-radius: 16px !important;
+  padding: 12px 10px !important;
+  font-size: 12px !important;
+}
+
+.multi-network-list .withdraw-network.active {
+  background: #d9fbf5 !important;
+  color: #008c7a !important;
+  border-color: #8be7dc !important;
+}
+
+
+/* =========================================================
+   RECHARGE NETWORK ICONS + SYMMETRIC LAYOUT
+========================================================= */
+
+.network-option-card {
+  min-height: 64px !important;
+  display: grid !important;
+  grid-template-columns: 44px 1fr !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 12px !important;
+}
+
+.network-option-icon {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 16px !important;
+  background: #e8fbf7 !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  flex: 0 0 42px !important;
+}
+
+.network-option-icon img {
+  width: 34px !important;
+  height: 34px !important;
+  object-fit: contain !important;
+  display: block !important;
+  border-radius: 50% !important;
+}
+
+.network-option-text {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  line-height: 1.15 !important;
+}
+
+.network-option-text strong {
+  font-size: 13px !important;
+  line-height: 1.1 !important;
+  color: #001f3f !important;
+  font-weight: 900 !important;
+}
+
+.network-option-text small {
+  margin-top: 4px !important;
+  color: #607698 !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  line-height: 1.1 !important;
+}
+
+.recharge-network-top-centered {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  text-align: center !important;
+  margin-bottom: 16px !important;
+}
+
+.recharge-network-top-centered h3 {
+  width: 100% !important;
+  text-align: center !important;
+  margin: 0 !important;
+  font-size: 18px !important;
+  font-weight: 950 !important;
+  color: #001f3f !important;
+}
+
+.selected-network-card {
+  width: 100% !important;
+  max-width: 250px !important;
+  min-height: 58px !important;
+  display: grid !important;
+  grid-template-columns: 46px 1fr !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 9px 14px !important;
+  border-radius: 18px !important;
+  background: #f5fbff !important;
+  border: 1px solid #c9e0f5 !important;
+  box-shadow: 0 10px 24px rgba(22, 74, 122, 0.06) !important;
+  margin: 0 auto !important;
+}
+
+.selected-network-icon {
+  width: 42px !important;
+  height: 42px !important;
+  object-fit: contain !important;
+  border-radius: 50% !important;
+  display: block !important;
+}
+
+.selected-network-copy {
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  text-align: left !important;
+  justify-content: center !important;
+  gap: 2px !important;
+}
+
+.selected-network-copy strong {
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  color: #001f3f !important;
+  line-height: 1.1 !important;
+}
+
+.selected-network-copy span {
+  font-size: 11.5px !important;
+  color: #617594 !important;
+  font-weight: 750 !important;
+  line-height: 1.15 !important;
+}
+
+.qr-frame {
+  margin-top: 10px !important;
+}
+
+.deposit-title-row-clean {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin-bottom: 12px !important;
+}
+
+.deposit-title-row-clean > div {
+  min-width: 0 !important;
+}
+
+.deposit-title-row-clean .deposit-title {
+  margin: 0 !important;
+  color: #001f3f !important;
+  font-size: 17px !important;
+  font-weight: 950 !important;
+  line-height: 1.1 !important;
+}
+
+.deposit-subtitle {
+  display: block !important;
+  margin-top: 5px !important;
+  color: #5f7494 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
+.deposit-title-row-clean .wallet-tag {
+  flex: 0 0 auto !important;
+  height: 30px !important;
+  padding: 0 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+  background: #eef6ff !important;
+  border: 1px solid #cce0ff !important;
+  color: #2f67f6 !important;
+  font-size: 10.5px !important;
+  font-weight: 900 !important;
+  max-width: 142px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.deposit-box-clean {
+  min-height: 58px !important;
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 9px 10px 9px 14px !important;
+  border-radius: 17px !important;
+  background: #f7fbff !important;
+  border: 1px solid #d2e3f6 !important;
+}
+
+.deposit-box-clean .deposit-address {
+  min-width: 0 !important;
+  color: #06224a !important;
+  font-size: 12.5px !important;
+  font-weight: 650 !important;
+  line-height: 1.25 !important;
+  word-break: break-all !important;
+}
+
+.deposit-copy-btn {
+  min-width: 78px !important;
+  height: 38px !important;
+  border-radius: 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  background: #d9fbf5 !important;
+  border: 1px solid #82e6d8 !important;
+  color: #0aa997 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  padding: 0 10px !important;
+  opacity: 1 !important;
+}
+
+.deposit-copy-btn svg {
+  width: 15px !important;
+  height: 15px !important;
+  flex: 0 0 15px !important;
+}
+
+@media (max-width: 390px) {
+  .network-option-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .selected-network-card {
+    max-width: 100% !important;
+  }
+
+  .deposit-title-row-clean {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+
+  .deposit-title-row-clean .wallet-tag {
+    max-width: 100% !important;
+  }
+}

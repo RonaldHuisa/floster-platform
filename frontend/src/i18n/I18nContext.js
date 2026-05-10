@@ -305,6 +305,10 @@ const esToEn = {
   "Por no contar con 5 invitados activos, desde tu retiro 12 se aplicará una reducción del 75%.": "Because you do not have 5 active invites, a 75% reduction will apply from your 12th withdrawal.",
   "Actualmente este retiro tiene una reducción del 75%. Invita 5 personas activas más y se quitará esta restricción. Podrás retirar el 100% con normalidad.": "This withdrawal currently has a 75% reduction. Invite 5 more active people and this restriction will be removed. You will be able to withdraw 100% normally.",
   "Actualmente este retiro tiene una reducción del 75% porque superaste el porcentaje de recuperación permitido sin completar la meta de comunidad. Invita 5 personas activas más y se quitará esta restricción. Podrás retirar el 100% con normalidad.": "This withdrawal currently has a 75% reduction because you exceeded the allowed recovery percentage without completing the community goal. Invite 5 more active people and this restriction will be removed. You will be able to withdraw 100% normally.",
+  "Selecciona red de depósito": "Select deposit network",
+  "Elige la red antes de enviar fondos.": "Choose the network before sending funds.",
+  "Ingrese dirección": "Enter address",
+  "Verifica que tu dirección pertenezca a la red seleccionada.": "Make sure your address belongs to the selected network.",
 };
 
 const enToEs = Object.fromEntries(Object.entries(esToEn).map(([es, en]) => [en, es]));

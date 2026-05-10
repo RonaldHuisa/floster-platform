@@ -7,11 +7,17 @@ import {
 } from "../services/authService";
 import { useI18n } from "../i18n/I18nContext";
 
+const PAYMENT_NETWORKS = [
+  { code: "BEP20-USDT", label: "BEP20-USDT", chain: "BNB Smart Chain BEP20", icon: "◆" },
+  { code: "POLYGON-USDT", label: "POLYGON-USDT", chain: "Polygon", icon: "⬡" },
+];
+
 export default function Withdraw() {
   const navigate = useNavigate();
   const { t } = useI18n();
   const toastTimerRef = useRef(null);
 
+  const [selectedNetwork, setSelectedNetwork] = useState("BEP20-USDT");
   const [available, setAvailable] = useState("0");
   const [feePercent, setFeePercent] = useState(8);
   const [minWithdraw, setMinWithdraw] = useState(1);
@@ -45,7 +51,7 @@ export default function Withdraw() {
     try {
       setLoading(true);
 
-      const data = await getWithdrawInfo();
+      const data = await getWithdrawInfo(selectedNetwork);
 
       setAvailable(data.available || "0");
       setFeePercent(Number(data.feePercent || 8));
@@ -60,7 +66,7 @@ export default function Withdraw() {
     } finally {
       setLoading(false);
     }
-  }, [showToast]);
+  }, [selectedNetwork, showToast]);
 
   useEffect(() => {
     loadWithdrawInfo();
@@ -105,6 +111,7 @@ export default function Withdraw() {
       setSending(true);
 
       const data = await createWithdrawRequest({
+        network: selectedNetwork,
         withdrawalAddress,
         amount,
         securityPassword,
@@ -139,7 +146,7 @@ export default function Withdraw() {
         </button>
 
         <div>
-          <div className="eyebrow">BEP20-USDT</div>
+          <div className="eyebrow">{selectedNetwork}</div>
           <h2>{t("Retirar")}</h2>
         </div>
 
@@ -182,10 +189,24 @@ export default function Withdraw() {
       <div className="panel withdraw-panel withdraw-network-panel">
         <div className="withdraw-row-title">
           <h3>{t("Red principal")}</h3>
-          <div className="withdraw-network-mini">
-            <span className="bnb-mini-icon">◆</span>
-            <strong>BEP20-USDT</strong>
-          </div>
+        </div>
+
+        <div className="withdraw-network-list multi-network-list">
+          {PAYMENT_NETWORKS.map((network) => (
+            <button
+              key={network.code}
+              className={`withdraw-network ${selectedNetwork === network.code ? "active" : ""}`}
+              type="button"
+              onClick={() => {
+                setSelectedNetwork(network.code);
+                setWithdrawalAddress("");
+                setAddressLocked(false);
+              }}
+            >
+              <span className="bnb-mini-icon">{network.icon}</span>
+              {network.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -196,7 +217,7 @@ export default function Withdraw() {
           className="withdraw-input"
           value={withdrawalAddress}
           onChange={(e) => setWithdrawalAddress(e.target.value)}
-          placeholder={t("Ingrese dirección BEP20-USDT")}
+          placeholder={`${t("Ingrese dirección")} ${selectedNetwork}`}
           disabled={addressLocked || !canWithdraw}
         />
 
@@ -286,7 +307,7 @@ export default function Withdraw() {
 
       <div className="withdraw-mini-reminder">
         <strong>{t("Recordatorio:")}</strong> {t("Solo se pueden retirar las ganancias disponibles;")}{" "}
-        {t("el saldo de recarga/VIP no se considera retirable.")} {t("El pago llega entre 5 minutos a 24 horas.")}
+        {t("el saldo de recarga/VIP no se considera retirable.")} {t("Verifica que tu dirección pertenezca a la red seleccionada.")}
       </div>
     </div>
   );

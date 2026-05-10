@@ -1,15 +1,35 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { QRCodeCanvas } from "qrcode.react";
 import { FiArrowLeft, FiCopy, FiCheckCircle } from "react-icons/fi";
 import { getMyWalletFromApi, scanMyDeposits } from "../services/authService";
 import { useI18n } from "../i18n/I18nContext";
+import usdtBep20Icon from "../assets/networks/usdt-bep20.png";
+import usdtPolygonIcon from "../assets/networks/usdt-polygon.png";
+
+const PAYMENT_NETWORKS = [
+  {
+    code: "BEP20-USDT",
+    label: "BEP20-USDT",
+    chain: "BNB Smart Chain BEP20",
+    tokenBadge: "BNB",
+    icon: usdtBep20Icon,
+  },
+  {
+    code: "POLYGON-USDT",
+    label: "POLYGON-USDT",
+    chain: "Polygon",
+    tokenBadge: "POLYGON",
+    icon: usdtPolygonIcon,
+  },
+];
 
 export default function Recharge() {
   const navigate = useNavigate();
   const { t } = useI18n();
   const toastTimerRef = useRef(null);
 
+  const [selectedNetwork, setSelectedNetwork] = useState("BEP20-USDT");
   const [wallet, setWallet] = useState(null);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
@@ -18,7 +38,12 @@ export default function Recharge() {
   const [toastType, setToastType] = useState("info");
   const [error, setError] = useState("");
 
-  const showToast = (message, type = "info", duration = 3800) => {
+  const currentNetwork = useMemo(
+    () => PAYMENT_NETWORKS.find((item) => item.code === selectedNetwork) || PAYMENT_NETWORKS[0],
+    [selectedNetwork]
+  );
+
+  const showToast = useCallback((message, type = "info", duration = 3800) => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
 
     setToast(message);
@@ -27,22 +52,22 @@ export default function Recharge() {
     toastTimerRef.current = setTimeout(() => {
       setToast("");
     }, duration);
-  };
+  }, []);
 
-  const showTempCopied = () => {
+  const showTempCopied = useCallback(() => {
     setCopied(true);
     showToast(t("Dirección copiada"), "success", 2200);
 
     setTimeout(() => {
       setCopied(false);
     }, 1800);
-  };
+  }, [showToast, t]);
 
   const loadWallet = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
-      const data = await getMyWalletFromApi();
+      const data = await getMyWalletFromApi(selectedNetwork);
       setWallet(data.wallet || data);
     } catch (err) {
       const message = err.message || t("No se pudo cargar la dirección de depósito.");
@@ -51,7 +76,7 @@ export default function Recharge() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [selectedNetwork, showToast, t]);
 
   useEffect(() => {
     loadWallet();
@@ -92,7 +117,7 @@ export default function Recharge() {
       setError("");
       showToast(t("Verificando depósito en blockchain..."), "info", 5000);
 
-      const result = await scanMyDeposits();
+      const result = await scanMyDeposits(selectedNetwork);
 
       if (result.addedDeposits > 0) {
         const addedAmount = Number(result.addedAmount || 0).toFixed(2);
@@ -144,13 +169,39 @@ export default function Recharge() {
         </button>
 
         <div>
-          <div className="eyebrow">BEP20-USDT</div>
+          <div className="eyebrow">{currentNetwork.label}</div>
           <h2>{t("Recargar")}</h2>
         </div>
 
         <button className="icon-btn ghost-icon" type="button" onClick={handleCopy}>
           <FiCopy />
         </button>
+      </div>
+
+      <div className="panel network-select-panel">
+        <div className="network-select-title">
+          <strong>{t("Selecciona red de depósito")}</strong>
+          <span>{t("Elige la red antes de enviar fondos.")}</span>
+        </div>
+
+        <div className="network-option-grid">
+          {PAYMENT_NETWORKS.map((network) => (
+            <button
+              key={network.code}
+              type="button"
+              className={`network-option-card ${selectedNetwork === network.code ? "active" : ""}`}
+              onClick={() => setSelectedNetwork(network.code)}
+            >
+              <span className="network-option-icon">
+                <img src={network.icon} alt={network.label} />
+              </span>
+              <span className="network-option-text">
+                <strong>{network.label}</strong>
+                <small>{network.chain}</small>
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading ? (
@@ -165,49 +216,53 @@ export default function Recharge() {
             </div>
           )}
 
-          <div className="panel recharge-pro-panel recharge-network-pro">
-            <div className="recharge-network-head">
+          <div className="panel recharge-pro-card">
+            <div className="recharge-network-top recharge-network-top-centered">
               <h3>{t("Red de depósito")}</h3>
-              <div className="recharge-token-badges">
-                <span className="token-badge token-bnb">
-                  <span className="token-mini-icon token-mini-bnb">◆</span>
-                  BNB
-                </span>
-                <span className="token-badge token-usdt">
-                  <span className="token-mini-icon token-mini-usdt">₮</span>
-                  USDT
-                </span>
+              <div className="selected-network-card">
+                <img
+                  className="selected-network-icon"
+                  src={currentNetwork.icon}
+                  alt={currentNetwork.label}
+                />
+                <div className="selected-network-copy">
+                  <strong>{currentNetwork.label}</strong>
+                  <span>{currentNetwork.chain}</span>
+                </div>
               </div>
             </div>
 
-            <div className="network-chip-pro">
-              <span className="network-chip-dot">◆</span>
-              <strong>BEP20-USDT</strong>
-            </div>
-
-            <div className="qr-shell-pro">
-              <div className="qr-card-pro">
-                {address ? (
-                  <QRCodeCanvas value={address} size={190} includeMargin />
-                ) : (
-                  <div className="qr-empty-state">{t("Sin dirección")}</div>
-                )}
+            <div className="qr-frame">
+              <div className="qr-wrapper">
+                <QRCodeCanvas
+                  value={address}
+                  size={190}
+                  bgColor="#ffffff"
+                  fgColor="#000000"
+                  level="H"
+                  includeMargin={true}
+                />
               </div>
             </div>
           </div>
 
-          <div className="panel recharge-pro-panel">
-            <div className="recharge-title-row">
-              <h3>{t("Dirección de depósito")}</h3>
-              <span className="wallet-badge-pro">Wallet</span>
+          <div className="panel deposit-panel deposit-pro-panel">
+            <div className="deposit-title-row deposit-title-row-clean">
+              <div>
+                <h3 className="deposit-title">{t("Dirección de depósito")}</h3>
+                <span className="deposit-subtitle">Wallet</span>
+              </div>
+              <span className="wallet-tag">{currentNetwork.label}</span>
             </div>
 
-            <div className="address-row-pro">
-              <div className="address-value-pro">{address || t("Sin dirección disponible")}</div>
+            <div className="deposit-box deposit-pro-box deposit-box-clean">
+              <span className="deposit-address">
+                {address || t("Sin dirección disponible")}
+              </span>
 
               <button
+                className="copy-btn deposit-copy-btn"
                 type="button"
-                className="copy-btn-pro"
                 onClick={handleCopy}
                 disabled={!address}
               >
@@ -218,7 +273,7 @@ export default function Recharge() {
           </div>
 
           <button
-            className="primary-btn recharge-main-btn recharge-main-pro-btn"
+            className="primary-btn recharge-main-btn"
             type="button"
             onClick={handleScan}
             disabled={scanning || !address}
@@ -226,17 +281,27 @@ export default function Recharge() {
             {scanning ? t("Verificando...") : t("Recarga completa")}
           </button>
 
-          <div className="panel friendly-note friendly-note-pro">
-            <div className="friendly-title">
+          <div className="recharge-notes recharge-pro-notes">
+            <div className="notes-title">
               <FiCheckCircle />
               <span>{t("Recordatorio importante")}</span>
             </div>
 
-            <ol className="friendly-list">
+            <ol>
               <li>{t("Copia la dirección superior o escanea el código QR.")}</li>
-              <li>{t("Usa únicamente la red")} <strong>BNB Smart Chain BEP20</strong> {t("para enviar USDT.")}</li>
-              <li>{t("Después de enviar el pago, presiona")} <strong>“{t("Recarga completa")}”</strong>. {t("Este paso es vital para verificar la blockchain y abonar tu saldo.")}</li>
-              <li>{t("No envíes otros activos ni uses otra red. Los depósitos duplicados no se vuelven a sumar.")}</li>
+              <li>
+                {t("Usa únicamente la red")}{" "}
+                <strong>{currentNetwork.chain}</strong>{" "}
+                {t("para enviar USDT.")}
+              </li>
+              <li>
+                {t("Después de enviar el pago, presiona")}{" "}
+                <strong>“{t("Recarga completa")}”</strong>.{" "}
+                {t("Este paso es vital para verificar la blockchain y abonar tu saldo.")}
+              </li>
+              <li>
+                {t("No envíes otros activos ni uses otra red. Los depósitos duplicados no se vuelven a sumar.")}
+              </li>
             </ol>
           </div>
         </>
